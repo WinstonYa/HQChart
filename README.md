@@ -97,7 +97,7 @@ React 例子:[demo-react.md](/教程/demo-react.md) <br>
      线段，射线，矩形，圆弧线,水平线,趋势线,平行线,平行通道,价格通道线,文本,江恩角度线,阻速线,黄金分割,百分比线,波段线,三角形,对称角度,斐波那契周期线,平行四边形,圆, iconfont图片 <br>
 * 支持区间统计， 区间形态匹配 (微信小程序版本不支持) <br>
 * 数据鼠标左右拖拽移动, 键盘移动十字光标移动，键盘缩放 <br>
-* 支持麦语法 [内置系统函数说明](https://opensourcecdn.zealink.com/cache/webcache/hqfunctionhelp/index.html)
+* 支持麦语法
 * 支持通达信语法指标
 * 支持五彩K线(目前录入系统五彩K线30多个), 支持自定义通达信语法脚本的五彩K线
 * 支持专家系统指标
@@ -152,6 +152,8 @@ React 例子:[demo-react.md](/教程/demo-react.md) <br>
 ![exportdata](/小程序行情模块用例/image/hqchart_exportdata.gif)  
 * 横向滚动条
 ![scroll bar](/小程序行情模块用例/image/hqchart_scrollbar.gif)  
+* 美国线(自动调整柱子宽度)
+![bar](/小程序行情模块用例/image/kline_usabar.gif)  
 
 
 # 2. 走势图
@@ -207,6 +209,8 @@ React 例子:[demo-react.md](/教程/demo-react.md) <br>
 
 
 # 4.使用教程
+## 麦语法函数帮助文档
+[HQChart麦语法内置函数帮助文档](https://jones2000.blog.csdn.net/article/details/129125330)   
 ## H5教程
 1. [HQChart使用教程1-如何快速创建一个K线图页面](https://blog.csdn.net/jones2000/article/details/90272733) <br>
 2. [HQChart使用教程2-如何把自定义指标显示在K线图页面](https://blog.csdn.net/jones2000/article/details/90273684) <br>
@@ -464,7 +468,9 @@ React 例子:[demo-react.md](/教程/demo-react.md) <br>
 1. [HQChart报价列表高级应用教程1-雪球数据对接报价列表](https://blog.csdn.net/jones2000/article/details/124759574)<br>
 2. [HQChart报价列表高级应用教程2-东方财富数据对接自选股列表](https://blog.csdn.net/jones2000/article/details/124940054)<br>
 3. [HQChart报价列表高级应用教程3-雪球数据对接报价列表uniapp版本](https://blog.csdn.net/jones2000/article/details/128637380)    
-4. [HQChart报价列表高级应用教程4-股票名称增加类型图标](https://blog.csdn.net/jones2000/article/details/128692571)     
+4. [HQChart报价列表高级应用教程4-股票名称增加类型图标](https://blog.csdn.net/jones2000/article/details/128692571)    
+5. [HQChart报价列表高级应用教程5-自定义单元格文字颜色](https://jones2000.blog.csdn.net/article/details/129665704)  
+5. [HQChart报价列表高级应用教程5-自定义列数据对接](https://jones2000.blog.csdn.net/article/details/129678481)  
 
 ## 设计文档:
 1. [如何(c++,js)写一个传统的K线图和走势图1](https://blog.csdn.net/jones2000/article/details/84779481) <br>

@@ -1275,7 +1275,7 @@ function Node(ErrorHandler)
             return;
         }
 
-        if (callee.Name=='STKINDI') //指标调用
+        if (callee.Name=='STKINDI' || callee.Name=='CALCSTOCKINDEX') //指标调用
         {
             var item={ ID:JS_EXECUTE_JOB_ID.JOB_EXECUTE_INDEX, Args:args,  FunctionName:callee.Name };
             if (token) item.Token={ Index:token.Start, Line:token.LineNumber };
@@ -6242,6 +6242,27 @@ function JSAlgorithm(errorHandler,symbolData)
         return result;
     }
 
+    this.ISVALID=function(data)
+    {
+        if (Array.isArray(data))
+        {
+            var result=[];
+            for(var i=0;i<data.length;++i)
+            {
+                var item=data[i];
+                if (item) result[i]=1;
+                else result[i]=0;
+            }
+
+            return result;
+        }
+        else
+        {
+            if (data) return 1;
+            else return 0;
+        }
+    }
+
     /*
     EXISTR(X,A,B):是否存在(前几日到前几日间).
     例如: EXISTR(CLOSE>OPEN,10,5) 
@@ -7022,6 +7043,36 @@ function JSAlgorithm(errorHandler,symbolData)
         }
 
         return result;
+    }
+
+    this.STRLEN=function(data)
+    {
+        if (IFrameSplitOperator.IsString(data)) return data.length;
+
+        if (Array.isArray(data))
+        {
+            var result=[];
+            for(var i=0;i<data.length;++i)
+            {
+                var item=data[i];
+                if (IFrameSplitOperator.IsString(item)) result[i]=item.length;
+                else result[i]=null;
+            }
+
+            return result;
+        }
+
+        return null;
+    }
+
+    this.STRCMP=function(data, data2)
+    {
+        if (IFrameSplitOperator.IsString(data) && IFrameSplitOperator.IsString(data2))
+        {
+            return data==data2? 1:0;
+        }
+
+        return null;
     }
 
     //STRSPACE(A):字符串附带一空格
@@ -8484,6 +8535,98 @@ function JSAlgorithm(errorHandler,symbolData)
         return result;
     }
 
+
+    //格式化字符串 "{0}-{1}", C, O;
+    this.STRFORMAT=function(strFormat,args,node)
+    {
+        var aryParam=strFormat.match(/{\d+}/g);
+
+        if (!IFrameSplitOperator.IsNonEmptyArray(aryParam)) return null;
+
+        var mapParam=new Map(); //key=index, value={Text}
+        var maxIndex=-1;
+        for(var i=0;i<aryParam.length;++i)
+        {
+            var item=aryParam[i];
+            if (item.length<3) continue;
+
+            var value=item.slice(1, item.length-1);
+            var index=parseInt(value);
+
+            var paramItem={ Src:item, Index:index, Text:null};
+
+            if (maxIndex<index) maxIndex=index;
+
+            mapParam.set(index, paramItem);
+        }
+
+        var isArray=false;  //是否输出数组字符串
+        var maxCount=0;
+        for(var i=1;i<args.length;++i)
+        {
+            var item=args[i];
+            if (Array.isArray(item))
+            {
+                isArray=true;
+                if (maxCount<item.length) maxCount=item.length;
+            }
+        }
+
+        if (isArray)
+        {
+            var result=[];
+
+            for(var i=0;i<maxCount;++i)
+            {
+                var strItem=strFormat;
+                
+                for(var item of mapParam)
+                {
+                    var paramInfo=item[1];
+                    var paramItem=args[paramInfo.Index+1];
+                    var text="null";
+                    if (paramItem)
+                    {
+                        if (Array.isArray(paramItem))
+                        {
+                            var value=paramItem[i];
+                            if (value) text=`${value}`;
+                        }
+                        else
+                        {
+                            text=`${paramItem}`;
+                        }
+                    }
+
+                    strItem=strItem.replace(paramInfo.Src, text);
+                }
+
+                result[i]=strItem;
+            }
+
+            return result;
+        }
+        else
+        {
+            var result=strFormat;
+
+            for(var item of mapParam)
+            {
+                var paramInfo=item[1];
+                var paramItem=args[paramInfo.Index+1];
+                var text="null";
+                if (paramItem)
+                {
+                    text=`${paramItem}`;
+                }
+
+                result=result.replace(paramInfo.Src, text);
+            }
+
+            return result;
+        }
+    }
+
     //函数调用
     this.CallFunction=function(name,args,node,symbolData)
     {
@@ -8542,6 +8685,8 @@ function JSAlgorithm(errorHandler,symbolData)
                 return this.CROSS(args[0], args[1]);
             case 'LONGCROSS':
                 return this.LONGCROSS(args[0], args[1], args[2]);
+            case "ISVALID":
+                return this.ISVALID(args[0]);
             case "CROSSDOWN":
                 return this.CROSSDOWN(args[0], args[1]);
             case "CROSSUP":
@@ -8660,6 +8805,12 @@ function JSAlgorithm(errorHandler,symbolData)
                 return this.STRSPACE(args[0]);
             case "FINDSTR":
                 return this.FINDSTR(args[0], args[1]);
+            case "STRCMP":
+                return this.STRCMP(args[0], args[1]);
+            case "STRLEN":
+                return this.STRLEN(args[0]);
+            case "STRFORMAT":
+                return this.STRFORMAT(args[0], args, node);
             case 'DTPRICE':
                 return this.DTPRICE(args[0], args[1]);
             case 'ZTPRICE':
@@ -9798,6 +9949,67 @@ function JSDraw(errorHandler,symbolData)
     }
 
     /*
+    含义:在图形上显示图标，鼠标移近时显示文字。
+    用法:
+    TIPICON(COND,PRICE,TYPE, TEXT),当COND条件满足时,在PRICE位置显示图标(TYPE) 若PRICE="TOP", "BOTTOM" 顶部或底部输出图标
+    */
+
+    this.TIPICON=function(condition, data, type, text)
+    {
+        if (IFrameSplitOperator.IsString(type)) //把ICO1=>1
+        {
+            var value=type.replace('ICO',"");
+            type=parseInt(value);
+        } 
+
+        var icon=g_JSComplierResource.GetDrawIcon(type);
+
+        let drawData=[];
+        let result={ DrawData:drawData, DrawType:'TIPICON',Icon:icon, IconType:type, Text:text };
+        if (condition.length<=0) return result;
+
+        var IsNumber=typeof(data)=="number";
+
+        if (IFrameSplitOperator.IsNumber(condition))
+        {
+            if (!condition) return result;
+
+            for(var i=0;i<this.SymbolData.Data.Data.length;++i)
+            {
+                if (IsNumber) 
+                {
+                    drawData[i]=data;
+                }
+                else 
+                {
+                    if (i<data.length && IFrameSplitOperator.IsNumber(data[i])) drawData[i]=data[i];
+                    else drawData[i]=null;
+                }
+            }
+        }
+        else if (Array.isArray(condition))
+        {
+            for(var i=0; i<condition.length; ++i)
+            {
+                drawData[i]=null;
+    
+                if (!condition[i]) continue;
+    
+                if (IsNumber) 
+                {
+                    drawData[i]=data;
+                }
+                else 
+                {
+                    if (IFrameSplitOperator.IsNumber(data[i])) drawData[i]=data[i];
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /*
     绘制通道
     condition:条件
     data,data2:通道顶部和底部
@@ -10693,7 +10905,7 @@ JSDraw.prototype.IsDrawFunction=function(name)
         "STICKLINE","DRAWTEXT",'SUPERDRAWTEXT','DRAWLINE','DRAWBAND','DRAWKLINE',"DRAWKLINE1",'DRAWKLINE_IF',"DRAWCOLORKLINE",'PLOYLINE',
         'POLYLINE','DRAWNUMBER',"DRAWNUMBER_FIX",'DRAWICON','DRAWCHANNEL','PARTLINE','DRAWTEXT_FIX','DRAWGBK','DRAWTEXT_LINE','DRAWRECTREL',"DRAWTEXTABS","DRAWTEXTREL",
         'DRAWOVERLAYLINE',"FILLRGN", "FILLRGN2","FILLTOPRGN", "FILLBOTTOMRGN", "FILLVERTICALRGN","FLOATRGN","DRAWSL", "DRAWGBK2",
-        "VERTLINE","HORLINE"
+        "VERTLINE","HORLINE","TIPICON"
     ]);
     if (setFunctionName.has(name)) return true;
 
@@ -11784,7 +11996,7 @@ function JSSymbolData(ast,option,jsExecute)
                 Explain:'涨停家数统计',
                 DateRange:dateRange,
                 DataType:dataType,
-                Request:{ Url:'www.121287.com',  Type:'POST' ,
+                Request:{ Url:'数据地址',  Type:'POST' ,
                     Data: { symbol:this.Symbol, blocksymbol:blockSymbol, field: ["up", "down"] } }, 
                 Self:this,
                 PreventDefault:false
@@ -13782,7 +13994,7 @@ function JSSymbolData(ast,option,jsExecute)
                 Name:'JSSymbolData::GetVariantData', //类名::函数名
                 Explain:'变量数据下载',
                 JobID:jobItem.ID,
-                Request:{ Url:"www.121287.com", Type:'POST', Data:{ VariantName:jobItem.VariantName, symbol: this.Symbol, daterange:dateRange } },
+                Request:{ Url:"数据地址", Type:'POST', Data:{ VariantName:jobItem.VariantName, symbol: this.Symbol, daterange:dateRange } },
                 Self:this,
                 PreventDefault:false
             };
@@ -13887,7 +14099,7 @@ function JSSymbolData(ast,option,jsExecute)
                 JobID:jobItem.ID,
                 Request:
                 { 
-                    Url:"www.121287.com", Type:'POST', 
+                    Url:"数据地址", Type:'POST', 
                     Data:{ VariantName:jobItem.VariantName, symbol: this.Symbol, daterange:dateRange, period:this.Period } 
                 },
                 Self:this,
@@ -13926,7 +14138,7 @@ function JSSymbolData(ast,option,jsExecute)
                 JobID:jobItem.ID,
                 Request:
                 { 
-                    Url:"www.121287.com", Type:'POST', 
+                    Url:"数据地址", Type:'POST', 
                     Data:
                     { 
                         FunctionName:jobItem.FunctionName, 
@@ -14403,6 +14615,27 @@ function JSSymbolData(ast,option,jsExecute)
         return false;
     }
 
+    this.ReadIndexFunctionOut=function(item, result)
+    {
+        var indexParam={};
+        if (typeof(item)=== 'object')
+        {
+            if (!this.ReadArgumentValue(item,indexParam))
+            {
+                result.Error=indexParam.Error;
+                return false;
+            }
+        }
+        else
+        {
+            indexParam.Value=item;
+        }
+
+        result.OutIndex=indexParam.Value;
+        result.Out=null;
+        return true;
+    }
+
     //MA.MA1#WEEK
     this.ReadIndexFunctionValue=function(item, result)  //返回 {Period:周期, Out:输出变量, Error:, Name:脚本名字 }
     {
@@ -14488,10 +14721,15 @@ function JSSymbolData(ast,option,jsExecute)
 
         if (readArgument.Value=='') readArgument.Value=this.Symbol; //缺省使用股票代码
 
+        var symbol=readArgument.Value;
+
+        //支持 SH60000, SZ000001
         //A股后缀小写
-        if (readArgument.Value.indexOf('.SH')>0) result.Symbol=readArgument.Value.replace('.SH', ".sh");
-        else if (readArgument.Value.indexOf('.SZ')>0) result.Symbol=readArgument.Value.replace('.SZ', ".sz");
-        else result.Symbol=readArgument.Value;
+        if (symbol.indexOf('.SH')>0) result.Symbol=symbol.replace('.SH', ".sh");
+        else if (symbol.indexOf('.SZ')>0) result.Symbol=symbol.replace('.SZ', ".sz");
+        else if (symbol.indexOf("SH")==0) result.Symbol=symbol.slice(2)+".sh";
+        else if (symbol.indexOf("SZ")==0) result.Symbol=symbol.slice(2)+".sz";
+        else result.Symbol=symbol;
 
         return true;
     }
@@ -14543,7 +14781,9 @@ function JSSymbolData(ast,option,jsExecute)
             indexParam+=item.Value.toString();
         }
 
-        var out=indexInfo.Out ? indexInfo.Out :"ALL";
+        var out="ALL";
+        if (indexInfo.Out) out=indexInfo.Out;
+        else if (IFrameSplitOperator.IsPlusNumber(indexInfo.OutIndex)) out=`Out[${indexInfo.OutIndex-1}]`;
         var key=`(${indexInfo.Symbol},${indexInfo.PeriodID}), ${indexInfo.Name}(${indexParam})=>${out}`;
 
         return key;
@@ -14635,9 +14875,20 @@ function JSSymbolData(ast,option,jsExecute)
         
     }
 
-    //脚本调用
-    //STKINDI('600000.sh','MA.MA1#WEEK',5,10,20,30,60,120);
-    //1=股票代码 2=指标名字.输出变量#周期, 3....参数
+    /*****************************************************************************************************************************
+        脚本调用
+
+        STKINDI
+        STKINDI('600000.sh','MA.MA1#WEEK',5,10,20,30,60,120);
+        1=股票代码 2=指标名字.输出变量#周期, 3....参数
+
+        CALCSTOCKINDEX
+        用法:CALCSTOCKINDEX(品种代码,指标名称,指标线),返回该指标相应输出的计算值.
+        例如:
+        CALCSTOCKINDEX('SH600000','KDJ',3)表示上证600000的KDJ指标第3个输出即J之值,第一个参数可在前面加SZ(深市),SH(沪市),BJ(京市),或市场_,,
+        CALCSTOCKINDEX('47_IFL0','MACD',2)表示IFL0品种的MACD指标第2个输出值.
+
+    *******************************************************************************************************************************/
     this.CallScriptIndex=function(job)
     {
         if (job.Member) return this.CallMemberScriptIndex(job);
@@ -14659,6 +14910,15 @@ function JSSymbolData(ast,option,jsExecute)
         {
             var token=job.Token;
             this.Execute.ErrorHandler.ThrowError(token.Index,token.Line,0,`CallScriptIndex() Error: ${indexInfo.Error}`);
+        }
+
+        if (job.FunctionName=="CALCSTOCKINDEX")
+        {
+            if (!this.ReadIndexFunctionOut(job.Args[2],indexInfo))     //读取返回值索引
+            {
+                var token=job.Token;
+                this.Execute.ErrorHandler.ThrowError(token.Index,token.Line,0,`CallScriptIndex() Error: ${indexInfo.Error}`);
+            }
         }
 
         var systemIndex=new JSIndexScript();
@@ -14753,7 +15013,7 @@ function JSSymbolData(ast,option,jsExecute)
         var aryOutVar=outVar;
         if (indexInfo.Out)
         {
-            for(var i in outVar)
+            for(var i=0;i<outVar.length; ++i)
             {
                 var item=outVar[i];
                 if (item.Name==indexInfo.Out) 
@@ -14763,6 +15023,14 @@ function JSSymbolData(ast,option,jsExecute)
                 }
             }
 
+            var data=this.Data.FitKLineIndex(kLine,aryOutVar,this.Period,indexInfo.PeriodID);
+            this.ScriptIndexOutData.set(key,data[0].Data);
+        }
+        else if (IFrameSplitOperator.IsPlusNumber(indexInfo.OutIndex))
+        {
+            var index=indexInfo.OutIndex-1;
+
+            aryOutVar=[outVar[index]];
             var data=this.Data.FitKLineIndex(kLine,aryOutVar,this.Period,indexInfo.PeriodID);
             this.ScriptIndexOutData.set(key,data[0].Data);
         }
@@ -14785,23 +15053,29 @@ function JSSymbolData(ast,option,jsExecute)
         this.Execute.ErrorHandler.ThrowError(token.Index,token.Line,0,`CallScriptIndex() ${indexInfo.Name} 指标执行错误 : ${error} `);
     }
 
-    this.GetScriptIndexOutData=function(args,node)
+    this.GetScriptIndexOutData=function(args,node, funcName)
     {
         var indexInfo={ PeriodID:this.Period };
         if (!this.ReadSymbolArgumentValue(args[0],indexInfo))  //读取代码
-            this.Execute.ThrowUnexpectedNode(node,`STKINDI() 股票代码错误: ${indexInfo.Error}`);
+            this.Execute.ThrowUnexpectedNode(node,`${funcName}() 股票代码错误: ${indexInfo.Error}`);
 
         if (!this.ReadIndexFunctionValue(args[1],indexInfo))     //读取指标
-            this.Execute.ThrowUnexpectedNode(node,`STKINDI() 指标错误: ${indexInfo.Error}`);
+            this.Execute.ThrowUnexpectedNode(node,`${funcName}() 指标错误: ${indexInfo.Error}`);
+
+        if (funcName=="CALCSTOCKINDEX")
+        {
+            if (!this.ReadIndexFunctionOut(args[2],indexInfo))     //读取返回值索引
+                this.Execute.ThrowUnexpectedNode(node, `${funcName}() Error: ${indexInfo.Error}`);
+        }
 
         var systemIndex=new JSIndexScript();
         var systemItem=systemIndex.Get(indexInfo.Name);
         if (!systemItem)
-            this.Execute.ThrowUnexpectedNode(node,`STKINDI() 指标错误: ${indexInfo.Name} 指标不存在`);
+            this.Execute.ThrowUnexpectedNode(node,`${funcName}() 指标错误: ${indexInfo.Name} 指标不存在`);
 
         indexInfo.SytemIndex=systemItem;    //系统指标
         if (!this.ReadIndexArgumentValue(args,indexInfo))
-            this.Execute.ThrowUnexpectedNode(node,`STKINDI()  指标参数错误: ${indexInfo.Error}`);
+            this.Execute.ThrowUnexpectedNode(node,`${funcName}()  指标参数错误: ${indexInfo.Error}`);
 
         var key=this.GenerateScriptIndexKey(indexInfo);
         if (!this.ScriptIndexOutData.has(key)) return null;
@@ -15570,6 +15844,7 @@ var JS_EXECUTE_JOB_ID=
     //调用其他脚本指标 
     //KDJ.K , KDJ.K#WEEK
     //STKINDI('600000.sh','MA.MA1#WEEK',5,10,20,30,60,120);
+    //CALCSTOCKINDEX('SH600000','KDJ',3)表示上证600000的KDJ指标第3个输出即J之值,第一个参数可在前面加SZ(深市),SH(沪市),BJ(京市)
     JOB_EXECUTE_INDEX:30010,                
 
     JOB_RUN_SCRIPT:10000, //执行脚本
@@ -16497,6 +16772,8 @@ function JSExecute(ast,option)
                     let value={Name:varName, Data:outVar, Color:color, Type:2};
                     if (lineWidth) value.LineWidth=lineWidth;
                     if (color) value.Color=color;
+                    if (upColor) value.UpColor=upColor;
+                    if (downColor) value.DownColor=downColor;
                     this.OutVarTable.push(value);
                 }
                 else if (varName && color && !draw) 
@@ -16805,6 +17082,10 @@ function JSExecute(ast,option)
                 node.Draw=this.Draw.ICON(args[0],args[1]);
                 node.Out=[];
                 break;
+            case "TIPICON":
+                node.Draw=this.Draw.TIPICON(args[0],args[1],args[2],args[3]);
+                node.Out=[];
+                break;
             case "BACKGROUND":
                 node.Draw=this.Draw.BACKGROUND(args[0],args[1],args[2],args[3],args[4],args[5]);
                 node.Out=[];
@@ -16979,7 +17260,8 @@ function JSExecute(ast,option)
                 node.Out=this.SymbolData.GetCustomApiData(args);
                 break;
             case "STKINDI":
-                node.Out=this.SymbolData.GetScriptIndexOutData(args,node);
+            case "CALCSTOCKINDEX":
+                node.Out=this.SymbolData.GetScriptIndexOutData(args,node,funcName);
                 break;
             case "SOUND":
                 node.Draw=this.Draw.SOUND(args[0]);
@@ -18796,6 +19078,7 @@ function ScriptIndex(name,script,args,option)
     {
         if (lineType==7) var line=new ChartStepLine();
         else var line=new ChartLine();
+
         line.Canvas=hqChart.Canvas;
         line.DrawType=1;
         line.Name=varItem.Name;
@@ -18804,6 +19087,12 @@ function ScriptIndex(name,script,args,option)
         line.Identify=this.Guid;
         if (varItem.Color) line.Color=this.GetColor(varItem.Color);
         else line.Color=this.GetDefaultColor(id);
+
+        if (lineType==8)
+        {
+            line.DrawType=2;
+            line.BreakPoint=varItem.BreakPoint;
+        }
 
         if (varItem.LineWidth) 
         {
@@ -19057,6 +19346,9 @@ function ScriptIndex(name,script,args,option)
         chartMACD.Data.Data=varItem.Data;
         var clrTitle=this.GetDefaultColor(id);
         if (varItem.Color) clrTitle=this.GetColor(varItem.Color);
+        if (varItem.UpColor) chartMACD.UpColor=varItem.UpColor;
+        if (varItem.DownColor) chartMACD.DownColor=varItem.DownColor;
+
         hqChart.TitlePaint[titleIndex].Data[id]=new DynamicTitleData(chartMACD.Data,varItem.Name,clrTitle);
 
         this.SetChartIndexName(chartMACD);
@@ -19588,6 +19880,70 @@ function ScriptIndex(name,script,args,option)
         hqChart.ChartPaint.push(chartText);
     }
 
+    this.CreateTipIcon=function(hqChart,windowIndex,varItem,i)
+    {
+        var chart=new ChartDrawSVG();
+        chart.Canvas=hqChart.Canvas;
+
+        chart.Name=varItem.Name;
+        chart.ChartBorder=hqChart.Frame.SubFrame[windowIndex].Frame.ChartBorder;
+        chart.ChartFrame=hqChart.Frame.SubFrame[windowIndex].Frame;
+
+        if (hqChart.ChartPaint[0].IsMinuteFrame())
+            chart.Data=hqChart.SourceData;
+        else
+            chart.Data=hqChart.ChartPaint[0].Data;  //绑定K线
+        
+        chart.Family=varItem.Draw.Icon.Family;
+        chart.TextFont=g_JSChartResource.TIPICON.TextFont;
+        
+        var svgSize=g_JSChartResource.TIPICON.Size;
+        var svgColor=g_JSChartResource.TIPICON.Color;
+        var svgYOffset=0;
+        var svgVAlign=2;    //上下对齐方式
+        if (IFrameSplitOperator.IsNumber(varItem.YOffset)) svgYOffset=varItem.YOffset;
+        if (varItem.Color) svgColor=this.GetColor(varItem.Color);
+        if (varItem.DrawFontSize>0) svgSize=varItem.DrawFontSize;
+        if (varItem.DrawVAlign>=0) svgVAlign=varItem.DrawVAlign;   
+
+        if (varItem.Draw && IFrameSplitOperator.IsNonEmptyArray(varItem.Draw.DrawData) && varItem.Draw.Icon)
+        {
+            var drawData=varItem.Draw.DrawData;
+            var aryData=[];
+            var isArrayTip=Array.isArray(varItem.Draw.Text);
+            var singleTip=null;
+            if (!isArrayTip && varItem.Draw.Text) singleTip={ Text:varItem.Draw.Text };
+
+            for(var j=0;j<drawData.length;++j)
+            {
+                var item=drawData[j];
+                if (!IFrameSplitOperator.IsNumber(item)) continue;
+
+                var svgItem=
+                { 
+                    Index:j, Value:item, 
+                    SVG:{ Symbol:varItem.Draw.Icon.Symbol, Size:svgSize, Color:svgColor, YOffset:svgYOffset, VAlign:svgVAlign }
+                };
+
+                if (isArrayTip)
+                {
+                    var text=varItem.Draw.Text[j];
+                    if (text) svgItem.Tooltip={ Text:text };
+                }
+                else
+                {
+                    svgItem.Tooltip=singleTip;
+                }
+
+                aryData.push(svgItem);
+            }
+
+            chart.Texts= aryData;
+        }
+
+        hqChart.ChartPaint.push(chart);
+    }
+
     //创建通道
     this.CreateChannel=function(hqChart,windowIndex,varItem,id)
     {
@@ -20039,6 +20395,9 @@ function ScriptIndex(name,script,args,option)
                     case "ICON":
                         this.CreateIcon(hqChart,windowIndex,item,i);
                         break;
+                    case "TIPICON":
+                        this.CreateTipIcon(hqChart,windowIndex,item,i);
+                        break;
                     case 'DRAWCHANNEL':
                         this.CreateChannel(hqChart,windowIndex,item,i);
                         break;
@@ -20130,6 +20489,10 @@ function ScriptIndex(name,script,args,option)
                 this.CreateVolStick(hqChart,windowIndex,item,i,hisData);
             }
             else if (item.Type==7)
+            {
+                this.CreateLine(hqChart,windowIndex,item,i, item.Type);
+            }
+            else if (item.Type==8)
             {
                 this.CreateLine(hqChart,windowIndex,item,i, item.Type);
             }
@@ -20431,6 +20794,10 @@ function OverlayScriptIndex(name,script,args,option)
             {
                 this.CreateLine(hqChart,windowIndex,item,i,item.Type);
             }
+            else if (item.Type==8)
+            {
+                this.CreateLine(hqChart,windowIndex,item,i, item.Type);
+            }
         }
 
         
@@ -20493,7 +20860,13 @@ function OverlayScriptIndex(name,script,args,option)
         chart.Identify=overlayIndex.Identify;
         if (varItem.Color) chart.Color=this.GetColor(varItem.Color);
         else chart.Color=this.GetDefaultColor(id);
-        
+
+        if (lineType==8)
+        {
+            chart.DrawType=2;
+            chart.BreakPoint=varItem.BreakPoint;
+        }
+
         if (varItem.LineWidth) 
         {
             let width=parseInt(varItem.LineWidth.replace("LINETHICK",""));
@@ -20639,6 +21012,9 @@ function OverlayScriptIndex(name,script,args,option)
         var titlePaint=hqChart.TitlePaint[titleIndex];
         var clrTitle=this.GetDefaultColor(id);
         if (varItem.Color) clrTitle=this.GetColor(varItem.Color);
+        if (varItem.UpColor) chart.UpColor=varItem.UpColor;
+        if (varItem.DownColor) chart.DownColor=varItem.DownColor;
+
         titlePaint.OverlayIndex.get(overlayIndex.Identify).Data[id]=new DynamicTitleData(chart.Data,varItem.Name,clrTitle);
 
         frame.ChartPaint.push(chart);
@@ -22043,6 +22419,7 @@ function APIScriptIndex(name,script,args,option, isOverlay)
                 if (item.linewidth) outVarItem.LineWidth=item.linewidth; 
                 if (item.isshow==false) outVarItem.IsShow = false;
                 if (item.isexdata==true) outVarItem.IsExData = true;
+                if (item.BreakPoint) outVarItem.BreakPoint=item.BreakPoint;
 
                 result.push(outVarItem);
             }
@@ -22478,6 +22855,7 @@ function APIScriptIndex(name,script,args,option, isOverlay)
                 if (item.linewidth>=1) outVarItem.LineWidth=item.linewidth;
                 if (item.isshow==false) outVarItem.IsShow = false;
                 if (item.isexdata==true) outVarItem.IsExData = true;
+                if (item.BreakPoint) outVarItem.BreakPoint=item.BreakPoint;
 
                 result.push(outVarItem);
             }
