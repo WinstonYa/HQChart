@@ -310,9 +310,8 @@ function JSChartResource()
         Tooltip:
         { 
             BGColor:'rgba(236,240,245, 0.8)', TextColor:"rgb(130,140,151)",
-            Border:{ Top:5, Left:20, Bottom:5, Center: 5},
+            Border:{ Top:5, Left:20, Right:20, Bottom:5, ItemSpace: 5},
             Font:"14px 微软雅黑",
-            LineHeight:16   //单行高度
         }
     }
 
@@ -544,8 +543,9 @@ function JSChartResource()
                 var border=tooltip.Border;
                 if (this.IsNumber(border.Top)) this.DepthCorss.Tooltip.Border.Top=border.Top;
                 if (this.IsNumber(border.Left)) this.DepthCorss.Tooltip.Border.Left=border.Left;
+                if (this.IsNumber(border.Right)) this.DepthCorss.Tooltip.Border.Right=border.Right;
                 if (this.IsNumber(border.Bottom)) this.DepthCorss.Tooltip.Border.Bottom=border.Bottom;
-                if (this.IsNumber(border.Center)) this.DepthCorss.Tooltip.Border.Center=border.Center;
+                if (this.IsNumber(border.ItemSpace)) this.DepthCorss.Tooltip.Border.ItemSpace=border.ItemSpace;
             }
         }
 
