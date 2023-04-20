@@ -10,10 +10,7 @@
     行情数据结构 及计算方法
 */
 
-import 
-{
-   MARKET_SUFFIX_NAME
-} from "./umychart.coordinatedata.wechat.js";
+import { MARKET_SUFFIX_NAME } from "./umychart.coordinatedata.wechat.js";
 
 function Guid() 
 {
@@ -30,6 +27,14 @@ function IsPlusNumber(value)
     if (value==null) return false;
     if (isNaN(value)) return false;
     return value>0;
+}
+
+function IsNumber(value)
+{
+    if (value==null) return false;
+    if (isNaN(value)) return false;
+
+    return true;
 }
 
 //历史K线数据
@@ -66,7 +71,7 @@ HistoryData.Copy=function(data)
 {
     var newData=new HistoryData();
     newData.Date=data.Date;
-    if (IsPlusNumber(data.Time)) newData.Time=data.Time;
+    if (IsNumber(data.Time)) newData.Time=data.Time;
     newData.YClose=data.YClose;
     newData.Open=data.Open;
     newData.Close=data.Close;
@@ -127,6 +132,8 @@ HistoryData.CopyRight=function(data,seed)
 {
     var newData=new HistoryData();
     newData.Date=data.Date;
+    if (IsNumber(data.Time)) newData.Time=data.Time;
+
     newData.YClose=data.YClose*seed;
     newData.Open=data.Open*seed;
     newData.Close=data.Close*seed;
@@ -1977,6 +1984,7 @@ var JSCHART_EVENT_ID =
     RECV_TRAIN_MOVE_STEP: 4,    //接收K线训练,移动一次K线
     CHART_STATUS: 5,            //每次Draw() 以后会调用
     BARRAGE_PLAY_END: 6,        //单个弹幕播放完成
+    RECV_OVERLAY_INDEX_DATA:7,  //接收叠加指标数据
     RECV_START_AUTOUPDATE: 9,    //开始自动更新
     RECV_STOP_AUTOUPDATE: 10,    //停止自动更新
     ON_TITLE_DRAW: 12,           //标题信息绘制事件
@@ -2017,6 +2025,10 @@ var JSCHART_EVENT_ID =
     ON_DRAW_REPORT_FIXEDROW_TEXT:58,        //报价列表固定行绘制
     ON_CLICK_REPORT_FIXEDROW:59,            //点击报价列表点击固定行
     ON_RCLICK_REPORT_FIXEDROW:60,           //点击报价列表右键点击固定行
+
+    ON_FORMAT_CORSSCURSOR_Y_TEXT:75,    //格式化十字光标Y轴文字
+    ON_FORMAT_INDEX_OUT_TEXT:76,           //格式化指标标题文字
+    ON_FORMAT_CORSSCURSOR_X_TEXT:77,    //格式化十字光标X轴文字
 }
 
 var JSCHART_DATA_FIELD_ID=
