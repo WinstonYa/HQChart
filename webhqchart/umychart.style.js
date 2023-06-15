@@ -40,6 +40,17 @@ function GetBlackStyle()
         DownBarColor: "rgb(25,158,0)",  //下跌
         UnchagneBarColor: "rgb(228,228,228)", //平盘
         EmptyBarBGColor:'rgb(0,0,0)',   //空心柱子背景色
+
+        HLCArea:
+        {
+            HighLineColor:'rgb(238,21,21)',
+            LowLineColor:"rgb(25,158,0)",
+            CloseLineColor:"rgb(156,156,156)",
+            LineWidth:2*GetDevicePixelRatio(),
+
+            UpAreaColor:"rgba(238,21,21, 0.3)",
+            DownAreaColor:"rgba(25,158,0, 0.3)",
+        },
     
         Minute: 
         {
@@ -74,6 +85,7 @@ function GetBlackStyle()
         IndexTitleColor:"rgb(190, 190 ,190)",                       //指标名字颜色
         IndexTitleBGColor:'rgb(0,0,0)',                     //指标名字背景色
         IndexTitleBorderColor:'rgb(211, 211, 211)',                 //指标名字边框颜色
+        IndexTitleBorderMoveOnColor:'rgb(30,144,255)',         //指标名字边框颜色(鼠标在上面)
     
         UpTextColor: "rgb(238,21,21)",
         DownTextColor: "rgb(25,158,0)",

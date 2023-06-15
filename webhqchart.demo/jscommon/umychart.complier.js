@@ -10029,17 +10029,25 @@ function JSDraw(errorHandler,symbolData)
         if (borderWidth>0) result.Border.Width=borderWidth;
         if (dotted) 
         {
-            let ary=dotted.split(',');
-            result.Border.Dotted=[];
-            for(var i in ary)
+            if (dotted=='0') 
             {
-                var item=ary[i];
-                if (!item) continue;
-                var value=parseInt(ary[i]);
-                if (value<=0) continue;
-                result.Border.Dotted.push(value);
+                result.Border.Dotted=[];
             }
-            if (result.Border.Dotted.length<=0) result.Border.Dotted=null;
+            else
+            {
+                let ary=dotted.split(',');
+                result.Border.Dotted=[];
+                for(var i in ary)
+                {
+                    var item=ary[i];
+                    if (!item) continue;
+                    var value=parseInt(ary[i]);
+                    if (!IFrameSplitOperator.IsNumber(value)) continue;
+                    if (value<=0) continue;
+                    result.Border.Dotted.push(value);
+                }
+                if (result.Border.Dotted.length<=0) result.Border.Dotted=null;
+            }
         }
 
         var IsNumber=typeof(data)=="number";
@@ -16582,6 +16590,7 @@ function JSExecute(ast,option)
                 let lineStick=false;
                 let stick=false;
                 let volStick=false;
+                let lineArea=false;
                 let stepLine=false;
                 let isShow=true;
                 let isExData=false;
@@ -16636,6 +16645,7 @@ function JSExecute(ast,option)
                         else if (value==='LINESTICK') lineStick=true;
                         else if (value==='STICK') stick=true;
                         else if (value==='VOLSTICK') volStick=true;
+                        else if (value=="LINEAREA") lineArea=true;
                         else if (value==="DRAWABOVE") isDrawAbove=true;
                         else if (value==="DRAWCENTER") isDrawCenter=true;
                         else if (value=="DRAWBELOW") isDrawBelow=true;
@@ -16817,6 +16827,16 @@ function JSExecute(ast,option)
                     if (color) value.Color=color;
                     if (upColor) value.UpColor=upColor;
                     if (downColor) value.DownColor=downColor;
+                    this.OutVarTable.push(value);
+                }
+                else if (lineArea && varName)   //LINEAREA 面积
+                {
+                    let outVar=this.VarTable.get(varName);
+                    let value={Name:varName, Data:outVar, Type:9};
+                    if (color) value.Color=color;
+                    if (upColor) value.UpColor=upColor;
+                    if (downColor) value.DownColor=downColor;
+                    if (lineWidth) value.LineWidth=lineWidth;
                     this.OutVarTable.push(value);
                 }
                 else if (colorStick && varName)  //CYW: SUM(VAR4,10)/10000, COLORSTICK; 画上下柱子
@@ -19207,6 +19227,62 @@ function ScriptIndex(name,script,args,option)
         hqChart.ChartPaint.push(line);
     }
 
+    this.CreateArea=function(hqChart, windowIndex, varItem, id,)
+    {
+        var line=new ChartArea();
+
+        line.Canvas=hqChart.Canvas;
+        line.DrawType=1;
+        line.Name=varItem.Name;
+        line.ChartBorder=hqChart.Frame.SubFrame[windowIndex].Frame.ChartBorder;
+        line.ChartFrame=hqChart.Frame.SubFrame[windowIndex].Frame;
+        line.Identify=this.Guid;
+        if (varItem.Color) line.Color=this.GetColor(varItem.Color);
+        else line.Color=this.GetDefaultColor(id);
+
+        if (varItem.DownColor) 
+        {
+            line.AreaColor=varItem.DownColor;
+        }
+        else if (varItem.UpColor)
+        {
+            line.AreaColor=varItem.UpColor;
+            line.AreaDirection=1;
+        }
+
+        if (varItem.LineWidth) 
+        {
+            let width=parseInt(varItem.LineWidth.replace("LINETHICK",""));
+            if (IFrameSplitOperator.IsPlusNumber(width)) line.LineWidth=width;
+        }
+
+        if (IFrameSplitOperator.IsNonEmptyArray(varItem.LineDash)) line.LineDash=varItem.LineDash; //虚线
+        if (varItem.IsShow==false) line.IsShow=false;
+        
+        let titleIndex=windowIndex+1;
+        line.Data.Data=varItem.Data;
+        if (varItem.IsShowTitle===false)    //NOTEXT 不绘制标题
+        {
+
+        }
+        else if (IFrameSplitOperator.IsString(varItem.Name) && varItem.Name.indexOf("NOTEXT")==0) //标题中包含NOTEXT不绘制标题
+        {
+
+        }
+        else
+        {
+            if (varItem.NoneName) 
+                hqChart.TitlePaint[titleIndex].Data[id]=new DynamicTitleData(line.Data,null,line.Color);
+            else
+                hqChart.TitlePaint[titleIndex].Data[id]=new DynamicTitleData(line.Data,varItem.Name,line.Color);
+
+            hqChart.TitlePaint[titleIndex].Data[id].ChartClassName=line.ClassName;
+        }
+        
+        this.SetChartIndexName(line);
+        hqChart.ChartPaint.push(line);
+    }
+
     this.CreateOverlayLine=function(hqChart,windowIndex,varItem,id,lineType)
     {
         if (lineType==7) var line=new ChartStepLine();
@@ -20598,6 +20674,10 @@ function ScriptIndex(name,script,args,option)
             {
                 this.CreateLine(hqChart,windowIndex,item,i, item.Type);
             }
+            else if (item.Type==9)
+            {
+                this.CreateArea(hqChart,windowIndex,item,i);
+            }
 
             var titlePaint=hqChart.TitlePaint[windowIndex+1];
             if (titlePaint &&  titlePaint.Data && i<titlePaint.Data.length) //设置标题数值 小数位数和格式
@@ -20751,13 +20831,13 @@ function OverlayScriptIndex(name,script,args,option)
         if (!this.OverlayIndex || this.OverlayIndex.IsOverlay!=true) return;
 
         this.OverlayIndex.Frame.ChartPaint=[];
-        if (this.OutVar==null || this.OutVar.length<0) return;
+        if (!IFrameSplitOperator.IsNonEmptyArray(this.OutVar)) return;
 
         //修改Y轴分割方式
         if (IFrameSplitOperator.IsNumber(this.YSplitType)) this.OverlayIndex.Frame.Frame.YSplitOperator.SplitType=this.YSplitType;
         
         //指标名字
-        var titleInfo={ Data:[], Title:this.Name };
+        var titleInfo={ Data:[], Title:this.Name, Frame:this.OverlayIndex.Frame.Frame };
         let indexParam='';
         for(var i in this.Arguments)
         {
@@ -20776,7 +20856,7 @@ function OverlayScriptIndex(name,script,args,option)
             titlePaint.SetDynamicTitle(this.OutName,this.Arguments, this.OverlayIndex.Identify);
         }
 
-        for(var i in this.OutVar)
+        for(var i=0; i<this.OutVar.length; ++i)
         {
             let item=this.OutVar[i];
             if (item.IsExData===true) continue; //扩展数据不显示图形
@@ -20900,6 +20980,12 @@ function OverlayScriptIndex(name,script,args,option)
             else if (item.Type==8)
             {
                 this.CreateLine(hqChart,windowIndex,item,i, item.Type);
+            }
+
+            var titleData=titleInfo.Data[i];
+            if (titleData)
+            {
+                if (this.FloatPrecision>=0) titleData.FloatPrecision=this.FloatPrecision;
             }
         }
 
@@ -22236,11 +22322,14 @@ function APIScriptIndex(name,script,args,option, isOverlay)
                     case "LINESTICK":
                         outItem.Type=4;
                         break;
-                    case "STICK":   //STICK 画柱状线
+                    case "STICK":       //STICK 画柱状线
                         outItem.Type=5;
                         break;
                     case "VOLSTICK":    //成交量柱子
                         outItem.Type=6;
+                        break;
+                    case "LINEAREA":
+                        outItem.Type=9; //面积
                         break;
                     case "NODRAW":  //不画该线
                         outItem.IsShow = false;

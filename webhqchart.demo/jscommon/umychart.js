@@ -508,7 +508,7 @@ function JSChart(divElement, bOffscreen)
             if (item.Overlay!=null) frame.OverlayIndex=item.Overlay;
             if (IFrameSplitOperator.IsBool(item.Export)) frame.ExportData=item.Export;
             if (IFrameSplitOperator.IsBool(item.MaxMin)) chart.Frame.SubFrame[i].Frame.MaxMinWindow=item.MaxMin;
-            if (IFrameSplitOperator.IsBool(item.TitlteWindow)) chart.Frame.SubFrame[i].Frame.TitlteWindow=item.TitlteWindow;
+            if (IFrameSplitOperator.IsBool(item.TitleWindow)) chart.Frame.SubFrame[i].Frame.TitleWindow=item.TitleWindow;
             if (item.IsDrawTitleBG==true)  chart.Frame.SubFrame[i].Frame.IsDrawTitleBG=item.IsDrawTitleBG;
             if (IFrameSplitOperator.IsBool(item.IsShowNameArrow))  chart.Frame.SubFrame[i].Frame.IsShowNameArrow=item.IsShowNameArrow;
 
@@ -928,7 +928,7 @@ function JSChart(divElement, bOffscreen)
                 if (item.Overlay!=null) frame.OverlayIndex=item.Overlay;
                 if (IFrameSplitOperator.IsBool(item.Export)) frame.ExportData=item.Export;
                 if (IFrameSplitOperator.IsBool(item.MaxMin)) frame.MaxMinWindow=item.MaxMin;
-                if (IFrameSplitOperator.IsBool(item.TitlteWindow)) frame.TitlteWindow=item.TitlteWindow;
+                if (IFrameSplitOperator.IsBool(item.TitleWindow)) frame.TitleWindow=item.TitleWindow;
 
                 if (IFrameSplitOperator.IsNumber(item.YSplitType)) chart.Frame.SubFrame[index].Frame.YSplitOperator.SplitType=item.YSplitType;
                 if (!isNaN(item.TitleHeight)) chart.Frame.SubFrame[index].Frame.ChartBorder.TitleHeight=item.TitleHeight;
@@ -1330,7 +1330,7 @@ function JSChart(divElement, bOffscreen)
                 if (item.Overlay!=null) frame.OverlayIndex=item.Overlay;
                 if (IFrameSplitOperator.IsBool(item.Export)) frame.ExportData=item.Export;
                 if (IFrameSplitOperator.IsBool(item.MaxMin)) chart.Frame.SubFrame[i].Frame.MaxMinWindow=item.MaxMin;
-                if (IFrameSplitOperator.IsBool(item.TitlteWindow)) chart.Frame.SubFrame[i].Frame.TitlteWindow=item.TitlteWindow;
+                if (IFrameSplitOperator.IsBool(item.TitleWindow)) chart.Frame.SubFrame[i].Frame.TitleWindow=item.TitleWindow;
                 if (IFrameSplitOperator.IsBool(item.IsDrawTitleBG))  chart.Frame.SubFrame[i].Frame.IsDrawTitleBG=item.IsDrawTitleBG;
                 if (IFrameSplitOperator.IsBool(item.IsShowNameArrow))  chart.Frame.SubFrame[i].Frame.IsShowNameArrow=item.IsShowNameArrow;
 
@@ -1426,6 +1426,9 @@ function JSChart(divElement, bOffscreen)
     //根据option内容绘制图形
     this.SetOption=function(option)
     {
+        //toolbar按钮风格
+        if (IFrameSplitOperator.IsNumber(option.ToolbarButtonStyle)) g_JSChartResource.ToolbarButtonStyle=option.ToolbarButtonStyle;
+
         var chart=null;
         switch(option.Type)
         {
@@ -1483,7 +1486,6 @@ function JSChart(divElement, bOffscreen)
             }
         }
         
-
         //设置股票代码
         if (!option.Symbol) 
         {
@@ -1663,10 +1665,10 @@ function JSChart(divElement, bOffscreen)
             return [];
     }
 
-    this.ChangeInstructionIndex=function(indexName) 
+    this.ChangeInstructionIndex=function(indexName, option) 
     {
         if (this.JSChartContainer && typeof(this.JSChartContainer.ChangeInstructionIndex)=='function')
-            this.JSChartContainer.ChangeInstructionIndex(indexName);
+            this.JSChartContainer.ChangeInstructionIndex(indexName, option);
     }
 
     this.ChangeInstructionScriptIndex=function(indexData)
@@ -2199,6 +2201,23 @@ JSChart.RegisterChartFrameClass=function(name, option)
 }
 
 
+//一些公共函数
+JSChart.ToFixedPoint=function(value)
+{
+    return ToFixedPoint(value);
+}
+
+JSChart.ToFixedPoint2=function(width, value)
+{
+    return ToFixedPoint2(width, value);
+}
+
+JSChart.ToFixedRect=function(value)
+{
+    return ToFixedRect(value);
+}
+
+
 
 var JSCHART_EVENT_ID=
 {
@@ -2313,7 +2332,16 @@ var JSCHART_EVENT_ID=
     ON_FORMAT_INDEX_Y_LABEL:93,          //格式化指标右侧Y轴刻度输出
     ON_FORMAT_OVERLAY_INDEX_Y_LABEL:94,  //格式化叠加指标右侧Y轴刻度输出
 
-    ON_CUSTOM_UNCHANGE_KLINE_COLOR:95,  //定制平盘K线颜色
+    ON_CUSTOM_UNCHANGE_KLINE_COLOR:95,      //定制平盘K线颜色
+
+    ON_CLICK_TITLE_BUTTON:96,            //指标标题按钮
+
+    ON_CUSTOM_LEFT_TOOLBAR:97,
+    ON_CUSTOM_RIGHT_TOOLBAR:98,
+
+    ON_REPORT_DRAG_COLUMN_WIDTH:99,     //拖动列宽
+
+    ON_CUSTOM_UNCHANGE_KLINE_TITLE_COLOR:100,   //定制平盘K线标题颜色
 }
 
 var JSCHART_OPERATOR_ID=
@@ -2378,7 +2406,30 @@ var JSCHART_BUTTON_ID=
 
     //画图工具 按钮预留18个
     DRAW_PICTURE_BUTTON_1:17,
-    DRAW_PICTURE_BUTTON_18:17+8,
+    DRAW_PICTURE_BUTTON_2:18,
+    DRAW_PICTURE_BUTTON_3:19,
+    DRAW_PICTURE_BUTTON_4:20,
+    DRAW_PICTURE_BUTTON_5:21,
+    DRAW_PICTURE_BUTTON_6:22,
+    DRAW_PICTURE_BUTTON_7:23,
+    DRAW_PICTURE_BUTTON_8:24,
+    DRAW_PICTURE_BUTTON_9:25,
+    DRAW_PICTURE_BUTTON_10:26,
+    DRAW_PICTURE_BUTTON_11:27,
+    DRAW_PICTURE_BUTTON_12:28,
+    DRAW_PICTURE_BUTTON_13:29,
+    DRAW_PICTURE_BUTTON_14:30,
+    DRAW_PICTURE_BUTTON_15:31,
+    DRAW_PICTURE_BUTTON_16:32,
+    DRAW_PICTURE_BUTTON_17:33,
+    DRAW_PICTURE_BUTTON_18:34,
+
+    //弹出菜单
+    POP_MENU_1:40,
+    POP_MENU_2:41,
+    POP_MENU_3:42,
+
+    INDEX_NAME_BUTTON:43
 }
 
 var JSCHART_DATA_FIELD_ID=
@@ -2468,7 +2519,7 @@ function JSChartContainer(uielement, OffscreenElement)
     this.OverlayChartPaint=new Array();             //叠加信息画法
     this.ChartDrawPicture=new Array();              //画图工具
     this.ChartDrawStorage;                          //画图工具保存
-    this.ChartDrawOption={ IsLockScreen:false, Zoom:1 };   //画图工具设置 { IsLockScreen://是否锁住屏幕, Zoom: //线段|点放大倍数 }
+    this.ChartDrawOption={ IsLockScreen:false, Zoom:1, Magnet:null };   //画图工具设置 { IsLockScreen://是否锁住屏幕, Zoom: //线段|点放大倍数, Magnet:磁吸 {Enable:, Type, Distance,}  }
     this.CurrentChartDrawPicture=null;              //当前的画图工具
     this.SelectChartDrawPicture=null;               //当前选中的画图
     this.MoveOnChartDrawPicture=null;               //鼠标在画图上
@@ -2761,7 +2812,7 @@ function JSChartContainer(uielement, OffscreenElement)
         this.MoveOnPoint={X:x, Y:y};
         this.OnMouseMove(x,y,e);
         
-        this.LastMouseStatus.MoveOnPoint=null;
+        //this.LastMouseStatus.MoveOnPoint=null;
         if (titleChart) titleChart.OnMouseMoveEvent=null;
 
         this.StartStopDisplayLatest();
@@ -2769,11 +2820,13 @@ function JSChartContainer(uielement, OffscreenElement)
 
     this.IsMouseOnClient=function(x,y)
     {
-        var isInClient=false;
-        this.Canvas.beginPath();
-        this.Canvas.rect(this.Frame.ChartBorder.GetLeft(),this.Frame.ChartBorder.GetTop(),this.Frame.ChartBorder.GetWidth(),this.Frame.ChartBorder.GetHeight());
-        isInClient=this.Canvas.isPointInPath(x,y);
-        return isInClient;
+        var rect={ Left:this.Frame.ChartBorder.GetLeft(), Top:this.Frame.ChartBorder.GetTop(), Width:this.Frame.ChartBorder.GetWidth(), Height:this.Frame.ChartBorder.GetHeight() };
+        rect.Right=rect.Left+rect.Width;
+        rect.Bottom=rect.Top+rect.Height;
+
+        if (x>=rect.Left && x<=rect.Right && y>=rect.Top && y<=rect.Bottom) return true;
+
+        return false;
     }
 
     this.UIOnContextMenu=function(e)
@@ -2862,6 +2915,39 @@ function JSChartContainer(uielement, OffscreenElement)
         return true;
     }
 
+    this.TryClickButton=function(x, y, e)
+    {
+        var button=this.Frame.PtInButtons(x,y);
+        if (button && this.ClickFrameButton)
+        {
+            this.ClickFrameButton(button, e);
+            return true;
+        }
+
+        button=this.PtInExtendChartButtons(x,y);
+        if (button && this.ClickExtendChartButton)
+        {
+            this.ClickExtendChartButton(button, e);
+            return true;
+        }
+
+        button=this.PtInDrawPictureButtons(x,y);
+        if (button && this.ClickDrawPictureButton)
+        {
+            this.ClickDrawPictureButton(button, e);
+            return true;
+        }
+
+        button=this.PtInTitleButtons(x,y);
+        if (button && this.ClickTitleButton)
+        {
+            this.ClickTitleButton(button, e);
+            return true;
+        }
+
+        return false;
+    }
+
     this.UIOnMouseDown=function(e)
     {
         this.MoveOnChartDrawPicture=null;
@@ -2880,29 +2966,9 @@ function JSChartContainer(uielement, OffscreenElement)
         var x = (e.clientX-this.UIElement.getBoundingClientRect().left)*pixelTatio;
         var y = (e.clientY-this.UIElement.getBoundingClientRect().top)*pixelTatio;
 
-        var button=this.Frame.PtInButtons(x,y);
-        if (button && this.ClickFrameButton)
+        if (this.TryClickButton(x,y,e))
         {
-            this.ClickFrameButton(button, e);
             return;
-        }
-        else
-        {
-            button=this.PtInExtendChartButtons(x,y);
-            if (button && this.ClickExtendChartButton)
-            {
-                this.ClickExtendChartButton(button, e);
-                return;
-            }
-            else
-            {
-                button=this.PtInDrawPictureButtons(x,y);
-                if (button && this.ClickDrawPictureButton)
-                {
-                    this.ClickDrawPictureButton(button, e);
-                    return;
-                }
-            }
         }
 
         if (this.TryClickCrossCursor(x,y, e))
@@ -2990,7 +3056,8 @@ function JSChartContainer(uielement, OffscreenElement)
         var drag=
         {
             "Click":{},
-            "LastMove":{}  //最后移动的位置
+            "LastMove":{},  //最后移动的位置
+            CurrentMove:{},     //当前的移动
         };
 
         drag.Click.X=e.clientX;
@@ -3181,6 +3248,11 @@ function JSChartContainer(uielement, OffscreenElement)
         var moveSetpY=Math.abs(drag.LastMove.Y-e.clientY);
         var isDragSelectRect=(this.RectSelectDrag && this.RectSelectDrag.Index>=0);
         var isDragSubSelectRect=(this.RectSelectDrag && this.RectSelectDrag.Type==4);
+        if (drag.CurrentMove) 
+        {
+            drag.CurrentMove.X=e.clientX;
+            drag.CurrentMove.Y=e.clientY;
+        }
 
         if (this.BorderDrag && this.BorderDrag.Index>=0)
         {
@@ -3262,7 +3334,7 @@ function JSChartContainer(uielement, OffscreenElement)
                 if (this.SelectChartDrawPicture && this.SelectChartDrawPicture.DragInfo)
                     this.SelectChartDrawPicture.DragInfo.Move={X:e.clientX, Y:e.client};
 
-                if(this.MoveChartDrawPicture(e.clientX-drag.LastMove.X,e.clientY-drag.LastMove.Y))
+                if(this.MoveChartDrawPicture(e.clientX-drag.LastMove.X,e.clientY-drag.LastMove.Y,false,drag))
                 {
                     this.DrawDynamicInfo();
                 }
@@ -4551,6 +4623,7 @@ function JSChartContainer(uielement, OffscreenElement)
         {
             var item=this.ExtendChartPaint[i];
             if (item.IsCallbackDraw) continue;
+            if (item.DrawAfterPicture) continue;
             if (!item.IsDynamic && item.IsAnimation==false) item.Draw();
         }
 
@@ -4573,6 +4646,7 @@ function JSChartContainer(uielement, OffscreenElement)
         {
             var item=this.ExtendChartPaint[i];
             if (item.IsCallbackDraw) continue;
+            if (item.DrawAfterPicture) continue;
             if (item.IsDynamic && item.DrawAfterTitle===false) 
             {
                 item.Draw();
@@ -4588,6 +4662,7 @@ function JSChartContainer(uielement, OffscreenElement)
 
         this.DrawDrawPictureXYCoordinate(); //绘制画图工具 X,Y轴刻度信息
         
+        var ptPosition=null;    //鼠标位置 null 无效 -1 在外面 >=0 对应的指标窗口中ID
         if (this.LastPoint.X!=null || this.LastPoint.Y!=null)
         {
             if (this.ChartCorssCursor)
@@ -4613,6 +4688,8 @@ function JSChartContainer(uielement, OffscreenElement)
                     this.ChartCorssCursor.Draw();
                 }
             }
+
+            ptPosition=this.Frame.PtInFrame(this.LastPoint.X, this.LastPoint.Y);
         }
 
         var drawStatus=this.GetDrawStatus();
@@ -4632,17 +4709,18 @@ function JSChartContainer(uielement, OffscreenElement)
             if (item.OnDrawEvent) 
             {
                 item.OnDrawEvent.FunctionName='Draw';
-                item.OnDrawEvent.PointPosition=null;
+                item.OnDrawEvent.PointPosition=ptPosition;
             }
 
             item.DrawStatus=drawStatus;
-            item.Draw();
+            item.Draw(moveonPoint, this.LastMouseStatus);
         }
 
         for(var i=0;i<this.ExtendChartPaint.length;++i) //动态扩展图形
         {
             var item=this.ExtendChartPaint[i];
             if (item.IsCallbackDraw) continue;
+            if (item.DrawAfterPicture) continue;
             if (item.IsDynamic && item.DrawAfterTitle===true && item.IsAnimation==false) item.Draw();
         }
 
@@ -4667,6 +4745,13 @@ function JSChartContainer(uielement, OffscreenElement)
         if (this.CurrentChartDrawPicture && this.CurrentChartDrawPicture.Status!=10)
         {
             this.CurrentChartDrawPicture.Draw();
+        }
+
+        for(var i=0;i<this.ExtendChartPaint.length;++i) //画图工具绘制完成以后 动态扩展图形
+        {
+            var item=this.ExtendChartPaint[i];
+            if (item.DrawAfterPicture)
+                item.Draw();
         }
 
         this.OffscreenToShowCanvas();
@@ -4700,6 +4785,10 @@ function JSChartContainer(uielement, OffscreenElement)
         button=this.PtInDrawPictureButtons(x,y);
         if (button)
             return { Name:"DrawPictureButton", Button:button };
+
+        button=this.PtInTitleButtons(x,y);
+        if (button)
+            return { Name:"TitleButton", Button:button };
 
         return null;
     }
@@ -4887,6 +4976,7 @@ function JSChartContainer(uielement, OffscreenElement)
         {
             var item=this.ExtendChartPaint[i];
             if (item.IsCallbackDraw) continue;
+            if (item.DrawAfterPicture) continue;
             if (item.IsDynamic && item.DrawAfterTitle===false && item.IsAnimation==false) 
             {
                 item.Draw();
@@ -4958,13 +5048,14 @@ function JSChartContainer(uielement, OffscreenElement)
                     item.PointInfo=null;
             }
             
-            item.Draw();
+            item.Draw(moveonPoint, this.LastMouseStatus);
         }
 
         for(var i=0;i<this.ExtendChartPaint.length;++i) //动态扩展图形   在动态标题以后画
         {
             var item=this.ExtendChartPaint[i];
             if (item.IsCallbackDraw) continue;
+            if (item.DrawAfterPicture) continue;
             if (item.ClassName=='KLineTooltipPaint' && option)
             {
                 if (option.Tooltip==false) continue;
@@ -4999,6 +5090,13 @@ function JSChartContainer(uielement, OffscreenElement)
         if (this.CurrentChartDrawPicture && this.CurrentChartDrawPicture.Status!=10)
         {
             this.CurrentChartDrawPicture.Draw();
+        }
+
+        for(var i=0;i<this.ExtendChartPaint.length;++i) //动态扩展图形
+        {
+            var item=this.ExtendChartPaint[i];
+            if (item.DrawAfterPicture) 
+                item.Draw();
         }
 
         if (this.LastMouseStatus.MouseOnToolbar)    //工具栏按钮提示信息
@@ -5176,11 +5274,30 @@ function JSChartContainer(uielement, OffscreenElement)
         }
     }
 
+    this.PtInTitleButtons=function(x,y)
+    {
+        for(var i=0;i<this.TitlePaint.length;++i)
+        {
+            var item=this.TitlePaint[i];
+            if (!item.PtInButtons) continue;
+
+            var button=item.PtInButtons(x,y);
+            if (button)
+            {
+                button.Chart=item;
+                return button;
+            }
+        }
+
+        return null;
+    }
+
     this.OnMouseMove=function(x,y,e, isPhone)
     {
         this.LastPoint.X=x;
         this.LastPoint.Y=y;
         var mouseStatus=null;   //鼠标状态
+        var button=null;        //当前鼠标所在按钮
         var frameID=this.Frame.PtInFrame(x,y);
         if (IFrameSplitOperator.IsNumber(frameID) && frameID>=0)    //在K线内部移动,调整K线索引
             this.CursorIndex=this.Frame.GetXData(x);
@@ -5209,7 +5326,7 @@ function JSChartContainer(uielement, OffscreenElement)
 
         if (!this.CurrentChartDrawPicture)
         {
-            var button=this.PtInButton(x,y);
+            button=this.PtInButton(x,y);
             if (button)
             {
                 mouseStatus={ Cursor:"pointer", Name:button.Name};
@@ -5298,10 +5415,18 @@ function JSChartContainer(uielement, OffscreenElement)
                 drawPictrueData.ChartDrawPicture && drawPictrueData.ChartDrawPicture.EnableMove==true) 
             {
                 
-                if (drawPictrueData.PointIndex===100) this.UIElement.style.cursor="move";
-                else this.UIElement.style.cursor="pointer";
-                bDrawPicture=true;
+                if (drawPictrueData.PointIndex===100) 
+                {
+                    if (drawPictrueData.Cursor) this.UIElement.style.cursor=drawPictrueData.Cursor;
+                    else this.UIElement.style.cursor="move";
+                }
+                else 
+                {
+                    if (drawPictrueData.Cursor) this.UIElement.style.cursor=drawPictrueData.Cursor
+                    else this.UIElement.style.cursor="pointer";
+                }
 
+                bDrawPicture=true;
                 this.MoveOnChartDrawPicture=drawPictrueData.ChartDrawPicture;
             }
             else 
@@ -5571,6 +5696,33 @@ function JSChartContainer(uielement, OffscreenElement)
         if (this.Frame.IsHScreen===true)
         {
             var border=this.Frame.ChartBorder.GetHScreenBorder();
+            if (border.DayBorder)   //多日分时+多日集合竞价
+            {
+                var width=border.Right-border.Left;
+                for(var i=0;i<border.DayBorder.length;++i)
+                {
+                    var client=border.DayBorder[i];
+                    this.Canvas.beginPath();
+                    this.Canvas.rect(border.Left,client.TopEx,width,client.BottomEx-client.TopEx);
+                    if (this.Canvas.isPointInPath(x,y)) 
+                        return 1;
+
+                    //盘前
+                    this.Canvas.beginPath();
+                    this.Canvas.rect(border.Left,client.Top,width,client.TopEx-client.Top);
+                    if (this.Canvas.isPointInPath(x,y)) 
+                        return 200+parseInt(i);
+
+                    //盘后
+                    this.Canvas.beginPath();
+                    this.Canvas.rect(border.Left,client.BottomEx,width,client.Bottom-client.BottomEx);
+                    if (this.Canvas.isPointInPath(x,y)) 
+                        return 300+parseInt(i);
+                }
+
+                return -1;
+            }
+
             this.Canvas.rect(border.Left,border.TopEx,border.Right-border.Left,border.BottomEx-border.TopEx);
         }
         else
@@ -5764,6 +5916,7 @@ function JSChartContainer(uielement, OffscreenElement)
             format.Value=toolTip;
             format.Symbol=this.Symbol;
             format.LanguageID=this.LanguageID;
+            format.GetEventCallback=(id)=> { return this.GetEventCallback(id); }
             if (!format.Operator()) return;
             var textHeight=format.LineCount*25; //每行的行高25
             if (format.Height>0) textHeight=format.Height;  //新版本高度有格式化类计算完成
@@ -6409,6 +6562,7 @@ function JSChartContainer(uielement, OffscreenElement)
             {
                 data.ChartDrawPicture=item;
                 data.PointIndex=pointIndex;
+                if (item.GetCursorType) data.Cursor=item.GetCursorType(pointIndex); //鼠标形状
                 return true;
             }
         }
@@ -6817,6 +6971,7 @@ function JSChartContainer(uielement, OffscreenElement)
         drawPicture.Point[0].X=xFixed;
         drawPicture.Point[0].Y=yFixed;
         drawPicture.Status=1;   //第1个点完成
+        drawPicture.PointMagnetKLine();
         return true;
     }
 
@@ -6854,7 +7009,7 @@ function JSChartContainer(uielement, OffscreenElement)
     }
 
     //xStep,yStep 移动的偏移量
-    this.MoveChartDrawPicture=function(x,y,isPhone)
+    this.MoveChartDrawPicture=function(x,y,isPhone,drag)
     {
         var drawPicture=this.CurrentChartDrawPicture;
         if (!drawPicture) return false;
@@ -6864,7 +7019,7 @@ function JSChartContainer(uielement, OffscreenElement)
         var xStep=x*pixelTatio;
         var yStep=y*pixelTatio;
         //JSConsole.Chart.Log("xStep="+xStep+" yStep="+yStep);
-        drawPicture.Move(xStep,yStep);
+        drawPicture.Move(xStep,yStep,drag);
 
         return true;
     }
@@ -6880,6 +7035,7 @@ function JSChartContainer(uielement, OffscreenElement)
             return true;
         }
 
+        drawPicture.PointMagnetKLine();
         drawPicture.Status=10;  //完成
         drawPicture.PointToValue();
 
@@ -6919,6 +7075,7 @@ function JSChartContainer(uielement, OffscreenElement)
         if (!drawPicture) return false;
         if (drawPicture.PointCount!=drawPicture.Point.length) return false;
 
+        drawPicture.PointMagnetKLine();
         drawPicture.Status=10;  //完成
         drawPicture.PointToValue();
 
@@ -6995,6 +7152,15 @@ function JSChartContainer(uielement, OffscreenElement)
     {
         if (IFrameSplitOperator.IsBool(option.IsLockScreen)) this.ChartDrawOption.IsLockScreen=option.IsLockScreen;
         if (IFrameSplitOperator.IsNumber(option.Zoom) && option.Zoom>=0)  this.ChartDrawOption.Zoom=option.Zoom;
+
+        if (option.Magnet)
+        {
+            var item=option.Magnet;
+            if (!this.ChartDrawOption.Magnet) this.ChartDrawOption.Magnet={ Type:0, Distance:20*GetDevicePixelRatio(), Enable:false };
+            if (IFrameSplitOperator.IsBool(item.Enable)) this.ChartDrawOption.Magnet.Enable=item.Enable;
+            if (IFrameSplitOperator.IsNumber(item.Type)) this.ChartDrawOption.Magnet.Type=item.Type;
+            if (IFrameSplitOperator.IsNumber(item.Distance)) this.ChartDrawOption.Magnet.Distance=opitemion.Distance;
+        }
     }
 
     //是否显示十字光标的十字线
@@ -7207,6 +7373,7 @@ function JSChartContainer(uielement, OffscreenElement)
             if (option.FloatPrecision>=0) indexData.FloatPrecision=option.FloatPrecision;
             if (option.StringFormat>0) indexData.StringFormat=option.StringFormat;
             if (option.Args) indexData.Args=option.Args;
+            if (option.Lock) indexData.Lock=option.Lock;
         }
 
         this.WindowIndex[index] = new ScriptIndex(indexData.Name, indexData.Script, indexData.Args,indexData);    //脚本执行
@@ -8071,6 +8238,23 @@ function ChartBorder()
             ChartHeight:this.UIElement.height
         };
 
+        if (this.MultiDayMinute && this.MultiDayMinute.Count>1 && ( this.MultiDayMinute.Left>0 || this.MultiDayMinute.Right>0 ))
+        {
+            var frameWidth=this.UIElement.height-this.Top-this.Bottom;   //坐标框子宽度
+            var dayWidth=frameWidth/this.MultiDayMinute.Count;          //每天的框子的宽度
+
+            var dayBorder=[];
+            for(var i=0;i<this.MultiDayMinute.Count;++i)
+            {
+                var item={ Top:this.Top+dayWidth*i, Bottom:this.Top+dayWidth*(i+1) };
+                item.TopEx=item.Top+this.MultiDayMinute.Left;
+                item.BottomEx=item.Bottom-this.MultiDayMinute.Right;
+                dayBorder.push(item);
+            }
+
+            data.DayBorder=dayBorder;
+        }
+
         return data;
     }
 
@@ -8241,6 +8425,7 @@ function ChartFrameFactory()
     this.DataMap=new Map(
     [
         ["KLineFrame", { Create:function(option) { return new KLineFrame(); } }],   //K线图
+        ["KLineHScreenFrame", { Create:function(option) { return new KLineHScreenFrame(); } }], 
     ]); 
 
     this.Create=function(name, option)
@@ -8311,6 +8496,7 @@ function IChartFramePainting()
 
     this.BorderLine=null;               //1=上 2=下 4=左 8=右
     this.Buttons=[];                    //按钮事件 
+    this.LeftButtonWidth=0;             //左侧按钮的宽度
 
     this.IsMinSize=false;               //窗口是否最小化
 
@@ -8793,7 +8979,12 @@ function AverageWidthFrame()
         var textWidth=this.Canvas.measureText(text).width+8;
         var textHeight=this.GetFontHeight();
         var bgHeight=textHeight+10;
-        if (JSCHART_BUTTON_ID.CLOSE_BEFOREOPEN_ID==mouseOnToolbar.Item.ID)
+        if (mouseOnToolbar.ID=="TitleButton")
+        {
+            var x=mouseOnToolbar.Point.X;
+            var y=mouseOnToolbar.Point.Y+20;
+        }
+        else if (JSCHART_BUTTON_ID.CLOSE_BEFOREOPEN_ID==mouseOnToolbar.Item.ID)
         {
             var x=mouseOnToolbar.Rect.Right+5;
             var y=mouseOnToolbar.Rect.Top;
@@ -10341,7 +10532,7 @@ function MinuteFrame()
     this.ChangeIndex=true;      //是否显示'换指标'菜单
     this.CloseIndex=true;       //是否显示'关闭指标窗口'菜单
     this.MaxMinWindow=true;
-    this.TitlteWindow=true;
+    this.TitleWindow=true;
     this.ExportData=false;      //是否显示'导出数据'菜单
 
     this.ModifyIndexEvent;   //改参数 点击事件
@@ -10558,7 +10749,7 @@ function MinuteFrame()
         var aryButton=[];
         if (this.CloseIndex)  aryButton.push( { ID:JSCHART_BUTTON_ID.CLOSE_INDEX_WINDOW, Style:this.CloseWindowButton });
         if (this.MaxMinWindow) aryButton.push({ ID:JSCHART_BUTTON_ID.MAX_MIN_WINDOW, Style:this.MaxMinWindowButton })
-        if (this.TitlteWindow) aryButton.push({ ID:JSCHART_BUTTON_ID.TITLE_WINDOW, Style:this.TitleWindowButton });
+        if (this.TitleWindow) aryButton.push({ ID:JSCHART_BUTTON_ID.TITLE_WINDOW, Style:this.TitleWindowButton });
         if (this.ExportData) aryButton.push( {ID:JSCHART_BUTTON_ID.EXPORT_DATA, Style:this.ExportDataButton});
         if (this.OverlayIndex) aryButton.push( { ID:JSCHART_BUTTON_ID.OVERLAY_INDEX, Style:this.OverlayIndexButton });
         if (this.ChangeIndex) aryButton.push( { ID:JSCHART_BUTTON_ID.CHANGE_INDEX, Style:this.ChangeIndexButton });
@@ -11415,7 +11606,97 @@ function MinuteFrame()
 
     this.GetRightExtendXValidData=function(x, obj)
     {
+        var border=this.ChartBorder.GetBorder();
+        if (border.DayBorder)
+        {
+            var indexData=this.GetRightExtendXData(x, obj.Data);
+            if (!indexData) return false;
+            var index=parseInt(indexData.DataIndex.toFixed(0));
+            var dayData=obj.Data[indexData.DayIndex];
+            
+            if (index>=0 && index<dayData.Data.length)
+            {
+                var item=dayData.Data[index];
+                if (IFrameSplitOperator.IsNumber(item.Price)) 
+                {
+                    obj.IndexData.DataIndex=index;
+                    return true;
+                }
+            }
 
+            if (index<0) index=0;
+            else if (index>=dayData.Data.length) index=dayData.Data.length-1;
+
+            var findIndex=-1;
+            for(var i=index; i>=0; --i)
+            {
+                var item=dayData.Data[i];
+                if (item && IFrameSplitOperator.IsNumber(item.Price))
+                {
+                    findIndex=i;
+                    break;
+                }
+            }
+    
+            if (findIndex<0) return false;
+    
+            obj.IndexData.DataIndex=findIndex;
+            obj.IndexData.Point.X=this.GetRightExtendXFromIndex(findIndex, dayData);  //调整X轴坐标
+
+            JSConsole.Chart.Log(`[MinuteFrame::GetRightExtendXValidData] DayIndex:${obj.IndexData.DayIndex}, Type:${obj.IndexData.Type}, x:${x}=>${obj.IndexData.Point.X}, index:${index}=>${findIndex}`);
+            return true;
+        }
+        else
+        {
+            if (!obj || !obj.Data) return false;
+            
+            var index=this.GetRightExtendXData(x, obj.Data);
+            index=parseInt(index.toFixed(0));
+
+            if (index>=0 && index<obj.Data.Data.length)
+            {
+                var item=obj.Data.Data[index];
+                if (IFrameSplitOperator.IsNumber(item.Price)) 
+                {
+                    obj.IndexData.DataIndex=index;
+                    return true;
+                }
+            }
+
+            if (index<0) index=0;
+            else if (index>=obj.Data.Data.length) index=obj.Data.Data.length-1;
+
+            var findIndex=-1;
+            for(var i=index; i>=0; --i)
+            {
+                var item=obj.Data.Data[i];
+                if (IFrameSplitOperator.IsNumber(item.Price))
+                {
+                    findIndex=i;
+                    break;
+                }
+            }
+
+            if (findIndex<0)
+            {
+                for(var i=index+1; i<obj.Data.Data.length;++i)
+                {
+                    var item=obj.Data.Data[i];
+                    if (IFrameSplitOperator.IsNumber(item.Price))
+                    {
+                        findIndex=i;
+                        break;
+                    }
+                }
+            }
+
+            if (findIndex<0) return false;
+
+            obj.IndexData.DataIndex=findIndex;
+            obj.IndexData.Point.X=this.GetRightExtendXFromIndex(findIndex, obj.Data);  //调整X轴坐标
+            JSConsole.Chart.Log(`[MinuteFrame::GetRightExtendXValidData] DayIndex:${obj.IndexData.DayIndex}, Type:${obj.IndexData.Type}, x:${x}=>${obj.IndexData.Point.X}, index:${index}=>${findIndex}`);
+            return true;
+        }
     }
     
     this.GetLeftExtendYFromData=function(value,isLimit,obj)
@@ -11555,9 +11836,15 @@ function MinuteHScreenFrame()
     //画集合竞价背景
     this.DrawBeforeDataBG=function()
     {
-        if (this.ChartBorder.LeftExtendWidth<10 && this.ChartBorder.RightExtendWidth<10) return;
         var border=this.ChartBorder.GetHScreenBorder();
+        if (border.DayBorder)
+        {
+            this.DrawMultiDayBeforeDataBG(border);
+            return;
+        }
 
+        if (this.ChartBorder.LeftExtendWidth<10 && this.ChartBorder.RightExtendWidth<10) return;
+        
         var left=ToFixedPoint(border.Left);
         var right=ToFixedPoint(border.Right);
         this.Canvas.fillStyle=this.BeforeBGColor;
@@ -11583,6 +11870,48 @@ function MinuteHScreenFrame()
         }
     }
 
+    this.DrawMultiDayBeforeDataBG=function(border)
+    {
+        var dayBorder=border.DayBorder;
+        var left=ToFixedPoint(border.Left);
+        var right=ToFixedPoint(border.Right);
+        var width=right-left;
+        
+        this.Canvas.strokeStyle=this.MultiDayBorderPen;
+        for(var i=0; i<dayBorder.length; ++i)
+        {
+            var drawCount=0;
+            var item=dayBorder[i];
+            var top=ToFixedPoint(item.Top);
+            var bottom=ToFixedPoint(item.TopEx);
+            var height=bottom-top;
+            if (height>3)    //盘前
+            {
+                this.Canvas.fillStyle=this.BeforeBGColor;
+                this.Canvas.fillRect(left,top,width,height);    
+                ++drawCount;
+            }
+
+            var top=ToFixedPoint(item.BottomEx);
+            var bottom=ToFixedPoint(item.Bottom);
+            var height=bottom-top;
+            if (height>3)    //盘后
+            {
+                this.Canvas.fillStyle=this.AfterBGColor;
+                this.Canvas.fillRect(left,top,width,height);
+                ++drawCount;
+            }
+
+            if (drawCount==2 && i!=dayBorder.length-1)
+            {
+                this.Canvas.beginPath();
+                this.Canvas.moveTo(left,bottom);
+                this.Canvas.lineTo(right,bottom);
+                this.Canvas.stroke();
+            }
+        }
+    }
+
     //Y坐标转y轴数值
     this.GetYData=function(x)
     {
@@ -11594,12 +11923,33 @@ function MinuteHScreenFrame()
 		return (x-border.LeftEx)/width*(this.HorizontalMax-this.HorizontalMin)+this.HorizontalMin;
     }
 
+    this.GetMultiDayXData=function(y,border)
+    {
+        var dayBorder=border.DayBorder;
+        for(var i=0;i<dayBorder.length;++i)
+        {
+            var client=dayBorder[i];
+            if (y>=client.Top && y<=client.Bottom)
+            {
+                var count=this.MinuteCount-1;
+                var dayMinuteCount=this.MinuteCount*i;
+                if (y<=client.TopEx) return 0+dayMinuteCount;
+                if (y>=client.BottomEx) return count+dayMinuteCount;
+
+                var width=client.BottomEx-client.TopEx;
+                return (y-client.TopEx)*(count*1.0/width)+dayMinuteCount;
+            }
+        }
+    }
+
     //X坐标转x轴数值
     this.GetXData=function(y)
     {
-        var border=this.ChartBorder.GetHScreenBorder();
         var count=this.XPointCount-1;
         if (count<0) count=0;
+
+        var border=this.ChartBorder.GetHScreenBorder();
+        if (border.DayBorder) return this.GetMultiDayXData(y, border);
 
         if (y<=border.TopEx) return 0;
 		if (y>=border.BottomEx) return count;
@@ -11608,10 +11958,34 @@ function MinuteHScreenFrame()
 		return (y-border.TopEx)*(count*1.0/height);
     }
 
+    this.GetMultiDayXFromIndex=function(index, border)
+    {
+        var dayBorder=border.DayBorder;
+        var minuteIndex=index%this.MinuteCount;
+        var dayIndex=parseInt(index/this.MinuteCount);
+        if (dayIndex>=dayBorder.length) dayIndex=dayBorder.length-1;
+
+        var client=dayBorder[dayIndex];
+        var count=this.MinuteCount-1;
+
+        if (minuteIndex>=count) 
+        {
+            return client.BottomEx;
+        }
+        else
+        {
+            var width=(client.BottomEx-client.TopEx);
+            var offset=client.TopEx+width*minuteIndex/count;
+            return offset;
+        }
+    }
+
     this.GetXFromIndex=function(index)
     {
         var count=this.XPointCount-1;
         var border=this.ChartBorder.GetHScreenBorder();
+        if (border.DayBorder) return this.GetMultiDayXFromIndex(index, border);
+
         if (count==1)
         {
             if (index==0) return border.TopEx;
@@ -11632,7 +12006,6 @@ function MinuteHScreenFrame()
             return offset;
         }
     }
-
     
     this.GetYFromData=function(value)
     {
@@ -11965,6 +12338,8 @@ function MinuteHScreenFrame()
         var count=obj.TotalCount-1;
 
         var border=this.ChartBorder.GetHScreenBorder();
+        if (border.DayBorder) return this.GetLeftExtendMultiDayXFromIndex(index, obj, border);
+
         var left=border.Top;
         var width=this.ChartBorder.LeftExtendWidth;
 
@@ -11972,12 +12347,52 @@ function MinuteHScreenFrame()
         return offset;
     }
 
+    this.GetLeftExtendMultiDayXFromIndex=function(index, obj, border)
+    {
+        var dayBorder=border.DayBorder;
+        var client=dayBorder[obj.Index];
+        var count=obj.TotalCount-1;
+
+        var left=client.Top;
+        var right=client.TopEx;
+        var width=right-left;
+
+        var offset=left+width*index/count;
+        return offset;
+    }
+
+    this.GetLeftExtendMultiDayXData=function(y, obj, border)
+    {
+        var dayBorder=border.DayBorder;
+        for(var i=0; i<dayBorder.length; ++i)
+        {
+            var client=dayBorder[i];
+            if (y>=client.Top && y<=client.TopEx)
+            {
+                if (!obj[i]) return null;
+                var count=obj[i].TotalCount-1;
+                var left=client.Top;
+                var right=client.TopEx;
+
+                var width=right-left;
+                var index=(y-left)*(count*1.0/width);
+
+                return { DayIndex:parseInt(i), DataIndex:index };
+            }
+        }
+
+        return null;
+    }
+
     this.GetLeftExtendXData=function(y, obj)
     {
+        var border=this.ChartBorder.GetHScreenBorder();
+        if (border.DayBorder) return this.GetLeftExtendMultiDayXData(y, obj, border);
+
         var count=obj.TotalCount-1;
         if (count<0) count=0;
 
-        var border=this.ChartBorder.GetHScreenBorder();
+        
         var left=border.Top;
         var right=border.TopEx;
 
@@ -12009,11 +12424,27 @@ function MinuteHScreenFrame()
         return (x-border.LeftEx)/width*(range.Max-range.Min)+range.Min;
     }
 
+    this.GetRightExtendMultiDayXFromIndex=function(index, obj, border)
+    {
+        var dayBorder=border.DayBorder;
+        var client=dayBorder[obj.Index];
+        var count=obj.TotalCount-1;
+
+        var left=client.BottomEx;
+        var right=client.Bottom;
+        var width=right-left;
+
+        var offset=left+width*index/count;
+        return offset;
+    }
+
     this.GetRightExtendXFromIndex=function(index, obj)
     {
         var count=obj.TotalCount-1;
 
         var border=this.ChartBorder.GetHScreenBorder();
+        if (border.DayBorder) return this.GetRightExtendMultiDayXFromIndex(index, obj, border);
+
         var left=border.BottomEx;
         var width=this.ChartBorder.RightExtendWidth;
 
@@ -12021,12 +12452,37 @@ function MinuteHScreenFrame()
         return offset;
     }
 
+    this.GetRightExtendMultiDayXData=function(y, obj, border)
+    {
+        var dayBorder=border.DayBorder;
+        for(var i=0; i<dayBorder.length; ++i)
+        {
+            var client=dayBorder[i];
+            if (y>=client.BottomEx && y<=client.Bottom)
+            {
+                if (!obj[i]) return null;
+                var count=obj[i].TotalCount-1;
+                var left=client.BottomEx;
+                var right=client.Bottom;
+
+                var width=right-left;
+                var index=(y-left)*(count*1.0/width);
+
+                return { DayIndex:parseInt(i), DataIndex:index };
+            }
+        }
+
+        return null;
+    }
+
     this.GetRightExtendXData=function(y, obj)
     {
+        var border=this.ChartBorder.GetHScreenBorder();
+        if (border.DayBorder) return this.GetRightExtendMultiDayXData(y, obj, border);
+
         var count=obj.TotalCount-1;
         if (count<0) count=0;
-
-        var border=this.ChartBorder.GetHScreenBorder();
+       
         var left=border.BottomEx;
         var right=border.Bottom;
 
@@ -12166,7 +12622,7 @@ function KLineFrame()
     this.CloseIndex=true;       //是否显示'关闭指标窗口'菜单
     this.OverlayIndex=false;    //是否显示叠加指标
     this.MaxMinWindow=true;
-    this.TitlteWindow=true;
+    this.TitleWindow=true;
     this.ExportData=false;      //是否显示'导出数据'菜单
 
     this.ModifyIndexEvent;   //改参数 点击事件
@@ -12347,6 +12803,7 @@ function KLineFrame()
     this.DrawToolbarV2=function(moveonPoint, mouseStatus)
     {
         this.Buttons=[];
+        this.LeftButtonWidth=0;
         if (this.IsMinSize==true) return;
         if (this.ChartBorder.TitleHeight<5) return;
 
@@ -12354,23 +12811,91 @@ function KLineFrame()
         //第1个窗口不能关闭
         if (this.CloseIndex && this.Identify!==0)  aryButton.push( { ID:JSCHART_BUTTON_ID.CLOSE_INDEX_WINDOW, Style:this.CloseWindowButton });
         if (this.MaxMinWindow && this.Identify!=0) aryButton.push({ ID:JSCHART_BUTTON_ID.MAX_MIN_WINDOW, Style:this.MaxMinWindowButton });
-        if (this.TitlteWindow && this.Identify!=0) aryButton.push({ ID:JSCHART_BUTTON_ID.TITLE_WINDOW, Style:this.TitleWindowButton });
+        if (this.TitleWindow && this.Identify!=0) aryButton.push({ ID:JSCHART_BUTTON_ID.TITLE_WINDOW, Style:this.TitleWindowButton });
         if (this.ExportData) aryButton.push( {ID:JSCHART_BUTTON_ID.EXPORT_DATA, Style:this.ExportDataButton});
         if (this.OverlayIndex) aryButton.push( { ID:JSCHART_BUTTON_ID.OVERLAY_INDEX, Style:this.OverlayIndexButton });
         if (this.ChangeIndex) aryButton.push( { ID:JSCHART_BUTTON_ID.CHANGE_INDEX, Style:this.ChangeIndexButton });
         if (this.ModifyIndex) aryButton.push( { ID:JSCHART_BUTTON_ID.MODIFY_INDEX_PARAM, Style:this.ModifyIndexParamButton });
-       
 
         if (IFrameSplitOperator.IsNonEmptyArray(this.CustomToolbar))
         {
             for(var i=0;i<this.CustomToolbar.length;++i)
             {
                 var item=this.CustomToolbar[i];
-                if (item.ID && item.Style) aryButton.push({ ID:item.ID, Style:item.Style, TooltipText:item.TooltipText});
+                if (item.ID && item.Style) 
+                {
+                    var btnItem={ ID:item.ID, Style:item.Style, TooltipText:item.TooltipText};
+                    
+                    if (item.IsLeft===true) //左侧按钮
+                    { 
+
+                    }
+                    else 
+                    {
+                        aryButton.push(btnItem); //右侧按钮
+                    }   
+                }
             }
         }
 
+        if (this.GetEventCallback)
+        {
+            var event=this.GetEventCallback(JSCHART_EVENT_ID.ON_CUSTOM_RIGHT_TOOLBAR);
+            if (event && event.Callback)
+            {
+                var sendData={ PreventDefault:false, DefaultButton:aryButton, AryButton:null, FrameID:this.Identify };
+                /*
+                if (option)
+                {
+                    if (option.Overlay) sendData.Title=option.Overlay.Title;
+                    if (option.OverlayID) sendData.OverlayID=option.OverlayID;
+                }
+                */
+                event.Callback(event, sendData, this);
+                if (sendData.PreventDefault) 
+                {
+                    this.DrawTitleButton(sendData.AryButton,moveonPoint, mouseStatus);
+                    return;
+                }
+            }
+        }
+
+
         this.DrawTitleButton(aryButton,moveonPoint, mouseStatus);
+    }
+
+    this.GetLeftToolbar=function(option)
+    {
+        if (this.GetEventCallback)
+        {
+            var event=this.GetEventCallback(JSCHART_EVENT_ID.ON_CUSTOM_LEFT_TOOLBAR);
+            if (event && event.Callback)
+            {
+                var sendData={ PreventDefault:false, AryButton:null, FrameID:this.Identify };
+                if (option)
+                {
+                    if (option.Overlay) sendData.Title=option.Overlay.Title;
+                    if (option.OverlayID) sendData.OverlayID=option.OverlayID;
+                }
+                event.Callback(event, sendData, this);
+                if (sendData.PreventDefault) return sendData.AryButton;
+            }
+        }
+
+        if (!IFrameSplitOperator.IsNonEmptyArray(this.CustomToolbar)) return null;
+
+        var aryLeftButton=[];   //左侧按钮
+        for(var i=0;i<this.CustomToolbar.length;++i)
+        {
+            var item=this.CustomToolbar[i];
+            if (item.ID && item.Style) 
+            {
+                var btnItem={ ID:item.ID, Style:item.Style, TooltipText:item.TooltipText};
+                if (item.IsLeft===true) aryLeftButton.push(btnItem);     //左侧按钮
+            }
+        }
+        
+        return aryLeftButton;
     }
 
     this.DrawFrame=function()
@@ -16079,6 +16604,8 @@ function HQTradeHScreenFrame()
             var frame=item.Frame;
             item.Frame.ChartBorder.Top=this.ChartBorder.Top;
             item.Frame.ChartBorder.Bottom=this.ChartBorder.Bottom;
+            item.Frame.ChartBorder.LeftExtendWidth=this.ChartBorder.LeftExtendWidth;
+            item.Frame.ChartBorder.RightExtendWidth=this.ChartBorder.RightExtendWidth;
 
             if (frame && frame.ChartBorder && frame.ChartBorder.IsShowTitleOnly && item.Height>0)
             {
@@ -19401,7 +19928,8 @@ function ChartPaintFactory()
     this.DataMap=new Map(
     [
         ["ChartKLine", { Create:function(option) { return new ChartKLine(); } }],   //K线图
-        ["ChartMinuteVolumBar",{ Create:function(option) { return new ChartMinuteVolumBar(); } }]   //分时成交量柱子
+        ["ChartMinuteVolumBar",{ Create:function(option) { return new ChartMinuteVolumBar(); } }],   //分时成交量柱子
+        ["ChartMinutePriceLine",{ Create:function(option) { return new ChartMinutePriceLine();} }]
     ]); 
 
     this.Create=function(name, option)
@@ -20198,7 +20726,7 @@ function ChartKLine()
     this.ClassName='ChartKLine';    //类名
     this.Symbol;        //股票代码
     this.DrawType=0;    // 0=实心K线柱子  1=收盘价线 2=美国线 3=空心K线柱子 4=收盘价面积图 5=订单流 6=空心K线柱子2(全部空心) 7=订单流样式2 8=订单流样式3  
-                        //9=自定义颜色K线 10=renko 11=Heikin Ashi 12=line break 13=high low
+                        //9=自定义颜色K线 10=renko 11=Heikin Ashi 12=line break 13=high low 14=外部自定义图 15=HLC Area
     this.CloseLineColor=g_JSChartResource.CloseLineColor;
     this.CloseLineAreaColor=g_JSChartResource.CloseLineAreaColor;
     this.CloseLineWidth=g_JSChartResource.CloseLineWidth;
@@ -20234,9 +20762,23 @@ function ChartKLine()
 
     this.HighLowBarColor=g_JSChartResource.HighLowBarColor;
 
+    this.HLCAreaConfig=
+    {
+        HighLineColor:g_JSChartResource.HLCArea.HighLineColor,
+        LowLineColor:g_JSChartResource.HLCArea.LowLineColor,
+        CloseLineColor:g_JSChartResource.HLCArea.CloseLineColor,
+        LineWidth:g_JSChartResource.HLCArea.LineWidth,
+
+        UpAreaColor:g_JSChartResource.HLCArea.UpAreaColor,
+        DownAreaColor:g_JSChartResource.HLCArea.DownAreaColor,
+    }
+
     //虚线柱子
     this.VirtualBarConfig={ Color:g_JSChartResource.VirtualKLine.Color, LineDash:g_JSChartResource.VirtualKLine.LineDash };
-    
+
+    //DrawType==14 自定义图形
+    this.FFKChart;
+
     /*
     this.CustomKLine=new Map([
         [20210415*1000000, { Color:'rgb(255,0,255)', DrawType:3, BGColor:"rgba(135,206,250,0.5)" }],
@@ -22004,6 +22546,191 @@ function ChartKLine()
         }
     }
 
+    this.DrawHLCArea=function()
+    {
+        var isHScreen=(this.ChartFrame.IsHScreen===true);
+        var dataWidth=this.ChartFrame.DataWidth;
+        var distanceWidth=this.ChartFrame.DistanceWidth;
+        var xPointCount=this.ChartFrame.XPointCount;
+
+        if (isHScreen)
+        {
+            var border=this.ChartBorder.GetHScreenBorder();
+            var xOffset=border.TopEx+distanceWidth/2.0+g_JSChartResource.FrameLeftMargin;
+            var chartright=border.BottomEx;
+            var borderLeft=border.TopEx;
+        }
+        else
+        {
+            var border=this.ChartBorder.GetBorder();
+            var xOffset=border.LeftEx+distanceWidth/2.0+g_JSChartResource.FrameLeftMargin;
+            var chartright=border.RightEx;
+            var borderLeft=border.LeftEx;
+        }
+
+        var lowPath=new Path2D();
+        var highPath=new Path2D();
+        var closePath=new Path2D();
+
+        var upArea=new Path2D();
+        var downArea=new Path2D();
+
+        var aryHighPoint=[];
+        var aryLowPoint=[];
+        var aryClosePoint=[];
+
+        var bFirstPoint=true;
+
+        if (this.Data.DataOffset>0) //把最左边的一个点连上
+        {
+            var data=this.Data.Data[this.Data.DataOffset-1];
+            if (data && IFrameSplitOperator.IsNumber(data.Close) && IFrameSplitOperator.IsNumber(data.High) && IFrameSplitOperator.IsNumber(data.Low))
+            {
+                var x=borderLeft;
+                var yClose=this.GetYFromData(data.Close,false);
+                var yHigh=this.GetYFromData(data.High,false);
+                var yLow=this.GetYFromData(data.Low,false);
+                if (isHScreen) 
+                {
+                    closePath.moveTo(yClose,x);
+                    highPath.moveTo(yHigh,x);
+                    lowPath.moveTo(yLow,x);
+
+                    upArea.moveTo(yHigh,x);
+                    downArea.moveTo(yLow,x);
+
+                    aryClosePoint.push({ X:yClose, Y:x });
+                    aryHighPoint.push({ X:yHigh, Y:x });
+                    aryLowPoint.push({ X:yLow, Y:x });
+                }
+                else 
+                {
+                    closePath.moveTo(x,yClose);
+                    highPath.moveTo(x,yHigh);
+                    lowPath.moveTo(x,yLow);
+
+                    upArea.moveTo(x,yHigh);
+                    downArea.moveTo(x,yLow);
+
+                    aryClosePoint.push({ X:x, Y:yClose });
+                    aryHighPoint.push({ X:x, Y:yHigh });
+                    aryLowPoint.push({ X:x, Y:yLow });
+                }
+
+                bFirstPoint=false;
+            }
+        }
+        
+
+        this.ShowRange.Start=this.Data.DataOffset;
+        this.ShowRange.End=this.ShowRange.Start;
+        this.ShowRange.DataCount=0;
+        this.ShowRange.ShowCount=xPointCount;
+        this.DrawKRange.Start=this.Data.DataOffset;
+
+        for(var i=this.Data.DataOffset,j=0;i<this.Data.Data.length && j<xPointCount;++i,++j,xOffset+=(dataWidth+distanceWidth),++this.ShowRange.DataCount)
+        {
+            var data=this.Data.Data[i];
+            this.ShowRange.End=i;
+            if (!data || !IFrameSplitOperator.IsNumber(data.Close) || !IFrameSplitOperator.IsNumber(data.High) || !IFrameSplitOperator.IsNumber(data.Low)) continue;
+
+            var left=xOffset;
+            var right=xOffset+dataWidth;
+            if (right>chartright) break;
+
+            var x=left+(right-left)/2;
+            var yClose=this.GetYFromData(data.Close,false);
+            var yHigh=this.GetYFromData(data.High,false);
+            var yLow=this.GetYFromData(data.Low,false);
+            this.DrawKRange.End=i;
+
+            if (bFirstPoint)
+            {
+                if (isHScreen) 
+                {
+                    closePath.moveTo(yClose,x);
+                    highPath.moveTo(yHigh,x);
+                    lowPath.moveTo(yLow,x);
+
+                    upArea.moveTo(yHigh,x);
+                    downArea.moveTo(yLow,x);
+                }
+                else 
+                {
+                    closePath.moveTo(x,yClose);
+                    highPath.moveTo(x,yHigh);
+                    lowPath.moveTo(x,yLow);
+
+                    upArea.moveTo(x,yHigh);
+                    downArea.moveTo(x,yLow);
+                }
+                bFirstPoint=false;
+            }
+            else
+            {
+                if (isHScreen) 
+                {
+                    closePath.lineTo(yClose,x);
+                    highPath.lineTo(yHigh,x);
+                    lowPath.lineTo(yLow,x);
+
+                    upArea.lineTo(yHigh,x);
+                    downArea.lineTo(yLow,x);
+                }
+                else 
+                {
+                    closePath.lineTo(x,yClose);
+                    highPath.lineTo(x,yHigh);
+                    lowPath.lineTo(x,yLow);
+
+                    upArea.lineTo(x,yHigh);
+                    downArea.lineTo(x,yLow);
+                }
+            }
+
+            if (isHScreen) 
+            {
+                aryClosePoint.push({ X:yClose, Y:x });
+                aryHighPoint.push({ X:yHigh, Y:x });
+                aryLowPoint.push({ X:yLow, Y:x });
+            }
+            else
+            {
+                aryClosePoint.push({ X:x, Y:yClose });
+                aryHighPoint.push({ X:x, Y:yHigh });
+                aryLowPoint.push({ X:x, Y:yLow });
+            }
+        }
+
+        if (bFirstPoint) return;
+
+        for(var i=aryClosePoint.length-1; i>=0;--i)
+        {
+            var item=aryClosePoint[i];
+            upArea.lineTo(item.X, item.Y);
+            downArea.lineTo(item.X, item.Y);
+        }
+
+        upArea.closePath();
+        downArea.closePath();
+
+        this.Canvas.fillStyle=this.HLCAreaConfig.UpAreaColor;
+        this.Canvas.fill(upArea);
+
+        this.Canvas.fillStyle=this.HLCAreaConfig.DownAreaColor;
+        this.Canvas.fill(downArea);
+
+        if (IFrameSplitOperator.IsNumber(this.HLCAreaConfig.LineWidth)) this.Canvas.lineWidth=this.HLCAreaConfig.LineWidth;
+        this.Canvas.strokeStyle=this.HLCAreaConfig.CloseLineColor;
+        this.Canvas.stroke(closePath);
+
+        this.Canvas.strokeStyle=this.HLCAreaConfig.HighLineColor;
+        this.Canvas.stroke(highPath);
+
+        this.Canvas.strokeStyle=this.HLCAreaConfig.LowLineColor;
+        this.Canvas.stroke(lowPath);
+    }
+
     this.ClipTickClient=function(isHScreen)
     {
         var border=this.GetBorder();
@@ -22027,6 +22754,30 @@ function ChartKLine()
         this.Canvas.clip();
     }
 
+    this.ClipWindow=function(isHScreen)
+    {
+        if (isHScreen==true)
+        {
+            var left=this.ChartBorder.GetLeft();
+            var right=this.ChartBorder.GetRightEx();
+            var top=this.ChartBorder.GetTop();
+            var bottom=this.ChartBorder.GetBottom();
+        }
+        else
+        {
+            var left=this.ChartBorder.GetLeft();
+            var right=this.ChartBorder.GetRight();
+            var top=this.ChartBorder.GetTopEx();
+            var bottom=this.ChartBorder.GetBottom();
+        }
+
+        this.Canvas.beginPath();
+        this.Canvas.rect(left,top,(right-left),(bottom-top));
+        //this.Canvas.stroke(); //调试用
+        this.Canvas.clip();
+    }
+
+    
     this.ClipClient=function(isHScreen)          //裁剪客户端
     {
         if (isHScreen==true)
@@ -22137,6 +22888,17 @@ function ChartKLine()
         else if (this.DrawType==13)
         {
             this.DrawHighLow();
+        }
+        else if (this.DrawType==14)
+        {
+            if (this.FFKChart && this.FFKChart.Draw)
+            {
+                this.FFKChart.Draw(this);
+            }
+        }
+        else if (this.DrawType==15)
+        {
+            this.DrawHLCArea();
         }
         else
         {
@@ -22284,6 +23046,10 @@ function ChartKLine()
         var infoData=this.InfoData.get(key);
         if (!infoData || infoData.Data.length<=0) return;
 
+        this.Canvas.restore();
+        this.Canvas.save();
+        this.ClipWindow(isHScreen);
+
         var pixelTatio = GetDevicePixelRatio(); //获取设备的分辨率
         var iconSize=dataWidth+distanceWidth;
         var minIconSize=18*pixelTatio;
@@ -22380,6 +23146,10 @@ function ChartKLine()
 
             if (!isHScreen) this.InfoTooltipRect.push(value);   //横屏没有tooltip
         }
+
+        this.Canvas.restore();
+        this.Canvas.save();
+        this.ClipClient(isHScreen);
     }
 
     //画交易图标
@@ -22533,6 +23303,14 @@ function ChartKLine()
     //计算当天显示数据的最大最小值
     this.GetMaxMin=function()
     {
+        if (this.DrawType==14)
+        {
+            if (this.FFKChart && this.FFKChart.GetMaxMin)
+            {
+                return this.FFKChart.GetMaxMin(this);
+            }
+        }
+
         var xPointCount=this.ChartFrame.XPointCount;
         var range={};
         range.Max=null;
@@ -25752,6 +26530,215 @@ function ChartLine()
     }
 }
 
+//面积图 支持横屏
+function ChartArea()
+{
+    this.newMethod=IChartPainting;   //派生
+    this.newMethod();
+    delete this.newMethod;
+
+    this.ClassName='ChartArea';    //类名
+    this.Color="rgb(255,193,37)";   //线段颜色
+    this.AreaColor;                 //面积颜色
+    this.LineWidth;                 //线段宽度
+    this.LineDash;                  //虚线
+    this.AreaDirection=0            //0=向下 1=向上
+
+    this.DrawSelectedStatus=this.DrawLinePoint;
+    this.PtInChart=this.PtInLine;
+
+    this.ExportData=this.ExportArrayData;
+    this.GetItemData=this.GetArrayItemData;
+
+    this.Draw=function()
+    {
+        if (!this.IsShow || this.ChartFrame.IsMinSize) return;
+        if (this.IsShowIndexTitleOnly()) return;
+
+        if (this.NotSupportMessage)
+        {
+            this.DrawNotSupportmessage();
+            return;
+        }
+
+        if (!this.Data || !this.Data.Data) return;
+
+        this.DrawArea();
+    }
+
+    //无效数不画
+    this.DrawArea=function()
+    {
+        var bHScreen=(this.ChartFrame.IsHScreen===true);
+        var isMinute=this.IsMinuteFrame();
+        var dataWidth=this.ChartFrame.DataWidth;
+        var distanceWidth=this.ChartFrame.DistanceWidth;
+        var xPointCount=this.ChartFrame.XPointCount;
+
+        if (bHScreen)
+        {
+            var border=this.ChartBorder.GetHScreenBorder();
+            var chartright=border.BottomEx;
+            var xOffset=border.TopEx+distanceWidth/2.0+g_JSChartResource.FrameLeftMargin;
+        }
+        else
+        {
+            var border=this.ChartBorder.GetBorder();
+            var xOffset=border.LeftEx+distanceWidth/2.0+g_JSChartResource.FrameLeftMargin;
+            var chartright=border.RightEx;
+        }
+
+        var lockRect=this.GetLockRect();
+        if (lockRect)
+        {
+            if (bHScreen) chartright=lockRect.Top;
+            else chartright=lockRect.Left;
+        }
+
+        this.Canvas.save();
+        this.ClipClient(bHScreen);
+        if (this.LineWidth>0) this.Canvas.lineWidth=this.LineWidth * GetDevicePixelRatio();
+        this.Canvas.strokeStyle=this.Color;
+        if (this.AreaColor) this.Canvas.fillStyle=this.AreaColor;
+        else this.Canvas.fillStyle=IChartDrawPicture.ColorToRGBA(this.Color,0.6);
+        if (IFrameSplitOperator.IsNonEmptyArray(this.LineDash)) this.Canvas.setLineDash(this.LineDas); //画虚线
+
+        var bFirstPoint=true;
+        var ptFirst=null, ptEnd=null   //起始结束点
+        var drawCount=0;
+        for(var i=this.Data.DataOffset,j=0;i<this.Data.Data.length && j<xPointCount;++i,++j,xOffset+=(dataWidth+distanceWidth))
+        {
+            var value=this.Data.Data[i];
+            if (!IFrameSplitOperator.IsNumber(value)) 
+            {
+                if (drawCount>0) this.Canvas.stroke();
+                if (ptFirst && ptEnd)
+                {
+                    if (bHScreen)
+                    {
+                        if (this.AreaDirection==1)
+                        {
+                            this.Canvas.lineTo(border.RightEx,ptEnd.X);
+                            this.Canvas.lineTo(border.RightEx,ptFirst.X);
+                        }
+                        else
+                        {
+                            this.Canvas.lineTo(border.LeftEx,ptEnd.X);
+                            this.Canvas.lineTo(border.LeftEx,ptFirst.X);
+                        }
+                        
+                        this.Canvas.closePath();
+                        this.Canvas.fill();
+                    }
+                    else
+                    {
+                        if (this.AreaDirection==1)
+                        {
+                            this.Canvas.lineTo(ptEnd.X, border.TopEx);
+                            this.Canvas.lineTo(ptFirst.X, border.TopEx);
+                        }
+                        else
+                        {
+                            this.Canvas.lineTo(ptEnd.X, border.BottomEx);
+                            this.Canvas.lineTo(ptFirst.X, border.BottomEx);
+                        }
+                        
+                        this.Canvas.closePath();
+                        this.Canvas.fill();
+                    }
+                }
+
+                bFirstPoint=true;
+                drawCount=0;
+                ptFirst=null;
+                ptEnd=null;
+                continue;
+            }
+
+            if (isMinute)
+            {
+                var x=this.ChartFrame.GetXFromIndex(j);
+            }
+            else
+            {
+                var left=xOffset;
+                var right=xOffset+dataWidth;
+                if (right>chartright) break;
+                var x=left+(right-left)/2;
+            }
+            
+            var y=this.GetYFromData(value,false);
+
+            if (x>chartright) break;
+
+            if (bFirstPoint)
+            {
+                this.Canvas.beginPath();
+                if (bHScreen) this.Canvas.moveTo(y,x);  //横屏坐标轴对调
+                else this.Canvas.moveTo(x,y);
+                bFirstPoint=false;
+                ptFirst={ X:x, Y:y };
+            }
+            else
+            {
+                if (bHScreen) this.Canvas.lineTo(y,x);
+                else this.Canvas.lineTo(x,y);
+                ptEnd={ X:x, Y:y };
+            }
+
+            ++drawCount;
+        }
+
+        if (drawCount>0) 
+        {
+            if (drawCount==1 && ptFirst)    //如果只有1个点, 画一个像素的横线
+            {
+                if (bHScreen) this.Canvas.lineTo(ptFirst.Y,ptFirst.X+1*GetDevicePixelRatio());
+                else this.Canvas.lineTo(ptFirst.X+1*GetDevicePixelRatio(),ptFirst.Y);
+            }
+           
+            this.Canvas.stroke();
+
+            if (ptFirst && ptEnd)
+            {
+                if (bHScreen)
+                {
+                    if (this.AreaDirection==1)
+                    {
+                        this.Canvas.lineTo(border.RightEx,ptEnd.X);
+                        this.Canvas.lineTo(border.RightEx,ptFirst.X);
+                    }
+                    else
+                    {
+                        this.Canvas.lineTo(border.LeftEx,ptEnd.X);
+                        this.Canvas.lineTo(border.LeftEx,ptFirst.X);
+                    }
+                   
+                    this.Canvas.closePath();
+                    this.Canvas.fill();
+                }
+                else
+                {
+                    if (this.AreaDirection==1)
+                    {
+                        this.Canvas.lineTo(ptEnd.X, border.TopEx);
+                        this.Canvas.lineTo(ptFirst.X, border.TopEx);
+                    }
+                    else
+                    {
+                        this.Canvas.lineTo(ptEnd.X, border.BottomEx);
+                        this.Canvas.lineTo(ptFirst.X, border.BottomEx);
+                    }
+                    
+                    this.Canvas.closePath();
+                    this.Canvas.fill();
+                }
+            }
+        }
+        this.Canvas.restore();
+    }
+}
+
 //散点图
 function ChartScatterPlot()
 {
@@ -27067,15 +28054,17 @@ function ChartVolStick()
     {
         var xPointCount=this.ChartFrame.XPointCount;
         var range={};
-        range.Min=0;
+        range.Min=null;
         range.Max=null;
         for(var i=this.Data.DataOffset,j=0;i<this.Data.Data.length && j<xPointCount;++i,++j)
         {
             var value=this.Data.Data[i];
-            if (range.Max==null) range.Max=value;
-
-            if (range.Max<value) range.Max=value;
+            if (!IFrameSplitOperator.IsNumber(range.Max) || range.Max<value) range.Max=value;
+            if (!IFrameSplitOperator.IsNumber(range.Min) || range.Min>value) range.Min=value
         }
+
+        if (range.Max>0 && range.Min>0) range.Min=0;
+        else if (range.Max<0 && range.Min<0) range.Max=0;
 
         return range;
     }
@@ -28823,6 +29812,8 @@ function ChartMinutePriceLine()
     this.DayOffset;
 
     this.LastPoint={};  //最后一个点的信息 {X, Y, Data:, Value:, DateTime:YYYYMMDDHHMMSS }
+    this.FFMChart; //定制图形
+    this.DrawType=0;    //0=走势图 14=定制图形
 
 
     this.UpdateLastPoint=function(dateTime, x,y, item)
@@ -28846,6 +29837,13 @@ function ChartMinutePriceLine()
 
         this.LastPoint={};
         if (!this.IsShow) return;
+
+        if (this.DrawType==14)
+        {
+            if (this.FFMChart && this.FFMChart.Draw)
+                this.FFMChart.Draw(this);
+            return;
+        }
 
         var isHScreen=(this.ChartFrame.IsHScreen===true);
         var dataWidth=this.ChartFrame.DataWidth;
@@ -29337,6 +30335,12 @@ function ChartMinutePriceLine()
 
     this.GetMaxMin=function()
     {
+        if (this.DrawType==14)
+        {
+            if (this.FFMChart && this.FFMChart.GetMaxMin)
+                return this.FFMChart.GetMaxMin(this);
+        }
+
         var xPointCount=this.ChartFrame.XPointCount;
         var range={};
         if (this.YClose==null) return range;
@@ -34749,6 +35753,7 @@ function IExtendChartPainting()
     this.SizeChange=true;               //大小是否改变
     this.IsEraseBG=false;               //是否每次画的时候需要擦除K线图背景
     this.DrawAfterTitle=false;          //是否在动态标题画完以后再画,防止动态标题覆盖
+    this.DrawAfterPicture=false;        //是否在画图工具以后绘制
     this.IsCallbackDraw=false;          //在回调函数里绘制, 不在Draw()中绘制
 
     //上下左右间距
@@ -34800,6 +35805,9 @@ function KLineTooltipPaint()
     this.Width=50;
     this.Height=100;
     this.LineHeight=15*GetDevicePixelRatio(); //行高
+    this.LineSpace=2;   //行间距
+    this.Mergin={ Left:2, Top:3, Bottom:5, Right:5 };
+    this.ExtendLineWidth=2;
 
     this.Font=[g_JSChartResource.TooltipPaint.TitleFont];
 
@@ -34877,46 +35885,59 @@ function KLineTooltipPaint()
     {
         if (!this.IsEnableDraw()) return;
 
+        this.IsHScreen=this.ChartFrame.IsHScreen===true;
         this.KLineTitlePaint=this.HQChart.TitlePaint[0];
         var klineData=this.KLineTitlePaint.GetCurrentKLineData();
         if (!klineData) return;
 
-        var lineCount=8;    //显示函数
-        var upperSymbol;
-        if (this.HQChart.Symbol) upperSymbol=this.HQChart.Symbol.toUpperCase();
-        if (this.ClassName==='MinuteTooltipPaint') 
-        {
-            lineCount=7;
-            if (MARKET_SUFFIX_NAME.IsFutures(upperSymbol)) ++lineCount;    //期货多一个持仓量
-        }
-        else 
-        {
-            if (IFrameSplitOperator.IsNumber(klineData.Time) ) ++lineCount;     //分钟K线多一列时间
-            if (MARKET_SUFFIX_NAME.IsSHSZStockA(this.HQChart.Symbol) && klineData.FlowCapital>0) ++lineCount;
-            if (MARKET_SUFFIX_NAME.IsFutures(upperSymbol) && IFrameSplitOperator.IsNumber(klineData.Position)) ++lineCount;    //持仓
-        }
+        var titleData=this.GetFormatTitle({Data:klineData});
+        if (!titleData || !IFrameSplitOperator.IsNonEmptyArray(titleData.AryText)) return;
 
-        //this.TitleColor=this.KLineTitlePaint.UnchagneColor;
-        this.IsHScreen=this.ChartFrame.IsHScreen===true;
-        this.Canvas.font=this.Font[0];
-        var defaultfloatPrecision=GetfloatPrecision(this.HQChart.Symbol);//价格小数位数
-        var maxText=' 擎: 9999.99亿 ';
-        if (defaultfloatPrecision>=5) maxText=` 擎: ${99.99.toFixed(defaultfloatPrecision)} `;  //小数位数太多了
-        this.Width=this.Canvas.measureText(maxText).width;
-        var lineHeight=this.GetFontHeight();
-        if (lineHeight>this.LineHeight) this.LineHeight=lineHeight;
-        this.Height=this.LineHeight*lineCount+2*GetDevicePixelRatio()*2;
-        if (klineData && klineData.High>0)  //最大值显示宽度
-        {
-            maxText=` 擎: ${klineData.High.toFixed(defaultfloatPrecision)} `;
-            var textWidth=this.Canvas.measureText(maxText).width;
-            if (textWidth>this.Width) this.Width=textWidth;
-        }
+        this.CalculateTooltipSize(titleData);
 
         this.CalculateShowPosition();
         this.DrawBG();
-        this.DrawTooltipData(klineData);
+        this.DrawTooltipData(titleData);
         this.DrawBorder();
+    }
+
+    this.CalculateTooltipSize=function(titleData)
+    {
+        this.Canvas.font=this.Font[0];
+        this.LineHeight=this.Canvas.measureText("擎").width;
+        var pixelRatio=GetDevicePixelRatio();
+        var height=0;
+        var maxTitleWidth=0, maxTextWidth=0, maxLineWidth=0;
+        for(var i=0; i<titleData.AryText.length; ++i)
+        {
+            var item=titleData.AryText[i];
+
+            if (height>0) height+=this.LineSpace;
+
+            var lineWidth=0;
+            if (item.Title)
+            {
+                var textWidth=this.Canvas.measureText(item.Title).width+2;
+                if (maxTitleWidth<textWidth) maxTitleWidth=textWidth;
+                lineWidth+=textWidth;
+            }
+
+            if (item.Text)
+            {
+                var textWidth=this.Canvas.measureText(item.Text).width+2;
+                if (maxTextWidth<textWidth) maxTextWidth=textWidth;
+                lineWidth+=textWidth;
+            }
+
+            if (maxLineWidth<lineWidth) maxLineWidth=lineWidth;
+
+            height+=this.LineHeight;
+        }
+
+        this.Height=height+(this.Mergin.Top+this.Mergin.Bottom)*pixelRatio;
+        this.Width=(maxLineWidth)+(this.Mergin.Left+this.Mergin.Right+this.ExtendLineWidth)*pixelRatio;
+
+        return { Height:this.Height, Width:this.Width, MaxTitleWidth:maxTitleWidth, MaxTextWidth:maxTextWidth };
     }
 
     //判断显示位置
@@ -34941,6 +35962,177 @@ function KLineTooltipPaint()
         }
     }
 
+    this.GetFormatTitle=function(data)
+    {
+        if (!data || !data.Data) return;
+
+        var item=data.Data;
+        var upperSymbol;
+        if (this.HQChart.Symbol) upperSymbol=this.HQChart.Symbol.toUpperCase();
+        var defaultfloatPrecision=GetfloatPrecision(this.HQChart.Symbol);//价格小数位数
+        
+        var aryText=[];
+        var result={ AryText:aryText };
+        var text, title, color;
+
+        text=IFrameSplitOperator.FormatDateString(item.Date);
+        aryText.push({ Text:text, Color:this.DateTimeColor });
+
+        var period=this.HQChart.Period;
+        if (ChartData.IsMinutePeriod(period,true) && IFrameSplitOperator.IsNumber(item.Time))
+        {
+            text=IFrameSplitOperator.FormatTimeString(item.Time);
+            aryText.push({ Text:text, Color:this.DateTimeColor });
+        }
+        else if (ChartData.IsSecondPeriod(period) && IFrameSplitOperator.IsNumber(item.Time))
+        {
+            text=IFrameSplitOperator.FormatTimeString(item.Time,'HH:MM:SS');
+            aryText.push({ Text:text, Color:this.DateTimeColor });
+        }
+
+        if (IFrameSplitOperator.IsNumber(item.Open))    //开盘
+        {
+            title=g_JSChartLocalization.GetText('Tooltip-Open',this.LanguageID);
+            color=this.KLineTitlePaint.GetColor(item.Open,item.YClose);
+            text=item.Open.toFixed(defaultfloatPrecision);
+            aryText.push({Title:title, TitleColor:this.TitleColor, Text:text, Color:color });
+        }
+
+        if (IFrameSplitOperator.IsNumber(item.High))    //高
+        {
+            title=g_JSChartLocalization.GetText('Tooltip-High',this.LanguageID);
+            color=this.KLineTitlePaint.GetColor(item.High,item.YClose);
+            text=item.High.toFixed(defaultfloatPrecision);
+            aryText.push({Title:title, TitleColor:this.TitleColor, Text:text, Color:color });
+        }
+
+        if (IFrameSplitOperator.IsNumber(item.Low))    //低
+        {
+            title=g_JSChartLocalization.GetText('Tooltip-Low',this.LanguageID);
+            color=this.KLineTitlePaint.GetColor(item.Low,item.YClose);
+            text=item.Low.toFixed(defaultfloatPrecision);
+            aryText.push({Title:title, TitleColor:this.TitleColor, Text:text, Color:color });
+        }
+
+        if (IFrameSplitOperator.IsNumber(item.Close))    //收
+        {
+            title=g_JSChartLocalization.GetText('Tooltip-Close',this.LanguageID);
+            color=this.KLineTitlePaint.GetColor(item.Close,item.YClose);
+            text=item.Close.toFixed(defaultfloatPrecision);
+            aryText.push({Title:title, TitleColor:this.TitleColor, Text:text, Color:color });
+        }
+
+        //涨幅
+        title=g_JSChartLocalization.GetText('Tooltip-Increase',this.LanguageID);
+        if (item.YFClose!=0 && MARKET_SUFFIX_NAME.IsChinaFutures(upperSymbol))
+        {
+            var value=(item.Close-item.YFClose)/item.YFClose*100;
+            color = this.KLineTitlePaint.GetColor(value, 0);
+            text = value.toFixed(2)+'%';
+        }
+        else if (item.YClose!=0)
+        {
+            var value=(item.Close-item.YClose)/item.YClose*100;
+            color = this.KLineTitlePaint.GetColor(value, 0);
+            text = value.toFixed(2)+'%';
+        }
+        else
+        {
+            text='--.--';
+            color=this.KLineTitlePaint.GetColor(0, 0);
+        }
+        aryText.push({Title:title, TitleColor:this.TitleColor, Text:text, Color:color });
+       
+        if (IFrameSplitOperator.IsNumber(item.Vol))
+        {
+            title=g_JSChartLocalization.GetText('Tooltip-Vol',this.LanguageID);
+            var vol=item.Vol;
+            if (upperSymbol && MARKET_SUFFIX_NAME.IsSHSZ(upperSymbol)) vol/=100; //A股统一转成手
+            text=IFrameSplitOperator.FromatIntegerString(vol,2,this.LanguageID);
+            aryText.push({Title:title, TitleColor:this.TitleColor, Text:text, Color:this.VolColor });
+        }
+       
+        if (IFrameSplitOperator.IsNumber(item.Amount))
+        {
+            title=g_JSChartLocalization.GetText('Tooltip-Amount',this.LanguageID);
+            var text=IFrameSplitOperator.FormatValueString(item.Amount,2,this.LanguageID);
+            aryText.push({Title:title, TitleColor:this.TitleColor, Text:text, Color:this.AmountColor });
+        }
+
+        //换手率
+        if (MARKET_SUFFIX_NAME.IsSHSZStockA(this.HQChart.Symbol) && item.FlowCapital>0)
+        {
+            title=g_JSChartLocalization.GetText('Tooltip-Exchange',this.LanguageID);
+            var value=item.Vol/item.FlowCapital*100;
+            var text=value.toFixed(2)+'%';
+            aryText.push({Title:title, TitleColor:this.TitleColor, Text:text, Color:this.TitleColor });
+        }
+
+        //持仓量
+        if (MARKET_SUFFIX_NAME.IsFutures(upperSymbol) && IFrameSplitOperator.IsNumber(item.Position))
+        {
+            title=g_JSChartLocalization.GetText('Tooltip-Position',this.LanguageID);
+            var text=IFrameSplitOperator.FromatIntegerString(item.Position,2,this.LanguageID);
+            aryText.push({Title:title, TitleColor:this.TitleColor, Text:text, Color:this.TitleColor });
+        }
+
+        return result;
+    }
+
+    this.DrawTooltipData=function(titleData)
+    {
+        if (!titleData || !IFrameSplitOperator.IsNonEmptyArray(titleData.AryText)) return;
+
+        var pixelRatio=GetDevicePixelRatio();
+        var left=this.GetLeft()+2*pixelRatio;
+        var top=this.GetTop()+3*pixelRatio;
+        if (this.IsHScreen)
+        {
+            this.Canvas.save(); 
+            var x=this.GetLeft()+this.Height, y=this.GetTop();
+
+            this.Canvas.translate(x, y);
+            this.Canvas.rotate(90 * Math.PI / 180);
+
+            //x, y 作为原点
+            left=2*pixelRatio;
+            top=3*pixelRatio;
+        }
+
+        
+        this.Canvas.textBaseline="top";
+        var right=left+this.Width-this.Mergin.Right*pixelRatio;
+        left+=this.Mergin.Left*pixelRatio;
+        top+=this.Mergin.Top*pixelRatio;
+        
+
+        for(var i=0; i<titleData.AryText.length; ++i)
+        {
+            var item=titleData.AryText[i];
+
+            if (item.Title)
+            {
+                this.Canvas.textAlign="left";
+                this.Canvas.fillStyle=item.TitleColor;
+                this.Canvas.fillText(item.Title,left,top);
+            }
+
+            if (item.Text)
+            {
+                this.Canvas.textAlign="right";
+                this.Canvas.fillStyle=item.Color;
+                this.Canvas.fillText(item.Text,right,top);
+            }
+
+            top+=this.LineHeight+this.LineSpace;
+        }
+
+
+
+        if (this.IsHScreen) this.Canvas.restore();
+    }
+
+    /*
     this.DrawTooltipData=function(item)
     {
         //JSConsole.Chart.Log('[KLineTooltipPaint::DrawKLineData] ', item);
@@ -35095,6 +36287,7 @@ function KLineTooltipPaint()
 
         if (this.IsHScreen) this.Canvas.restore();
     }
+    */
 
     this.DrawBorder=function()
     {
@@ -35137,6 +36330,8 @@ function MinuteTooltipPaint()
     this.YClose;
     this.IsShowAveragePrice=true;   //是否显示均价
 
+    this.TitlePaint;
+
     this.GetTop=function()
     {
         if (this.IsHScreen) 
@@ -35171,6 +36366,142 @@ function MinuteTooltipPaint()
         }
     }
 
+    this.Draw=function()
+    {
+        if (!this.IsEnableDraw()) return;
+
+        this.IsHScreen=this.ChartFrame.IsHScreen===true;
+        this.TitlePaint=this.HQChart.TitlePaint[0];
+        if (!this.TitlePaint) return;
+
+        var drawData;   //{ Type:0=连续交易 1=集合竞价, Data:数据 }
+        var pointInfo=this.TitlePaint.PointInfo;
+        if (pointInfo && (pointInfo.ClientPos==2 || pointInfo.ClientPos==3 ||  (pointInfo.ClientPos>=200&& pointInfo.ClientPos<=299) || (pointInfo.ClientPos>=300&& pointInfo.ClientPos<=399)))
+        {
+            var auctionData=this.TitlePaint.GetCurrentAuctionData();
+            if (!auctionData) return;
+            drawData={ Type:1, Data:auctionData };
+        }
+        else
+        {
+            var minuteData=this.TitlePaint.GetCurrentKLineData();
+            if (!minuteData) return;
+            drawData={ Type:0, Data:minuteData };
+        }
+       
+
+        var titleData=this.GetFormatTitle(drawData);
+        if (!titleData || !IFrameSplitOperator.IsNonEmptyArray(titleData.AryText)) return;
+
+        this.CalculateTooltipSize(titleData);
+
+        this.CalculateShowPosition();
+        this.DrawBG();
+        this.DrawTooltipData(titleData);
+        this.DrawBorder();
+    }
+
+    this.GetFormatTitle=function(data)
+    {
+        if (!data || !data.Data) return;
+
+        var item;
+        var close, vol, amount;
+        if (data.Type==0)   //盘中
+        {
+            item=data.Data;
+            close=item.Close;
+            vol=item.Vol;
+            amount=item.Amount;
+        }
+        else if (data.Type==1)  //盘前 盘后
+        {
+            item=data.Data.Data;
+            if (!item) return;
+            close=item.Price;
+        }
+        
+        var upperSymbol;
+        this.YClose=this.TitlePaint.YClose;
+        if (this.HQChart.Symbol) upperSymbol=this.HQChart.Symbol.toUpperCase();
+        var defaultfloatPrecision=GetfloatPrecision(this.HQChart.Symbol);//价格小数位数
+        
+        var aryText=[];
+        var result={ AryText:aryText };
+        var text, title, color;
+
+        if (IFrameSplitOperator.IsNumber(item.Date))
+        {
+            text=IFrameSplitOperator.FormatDateString(item.Date);
+            aryText.push({ Text:text, Color:this.DateTimeColor });
+        }
+
+        if (IFrameSplitOperator.IsNumber(item.Time))
+        {
+            text=IFrameSplitOperator.FormatTimeString(item.Time);
+            aryText.push({ Text:text, Color:this.DateTimeColor });
+        }
+
+        
+        if (IFrameSplitOperator.IsNumber(close))    //最新
+        {
+            title=g_JSChartLocalization.GetText('Tooltip-Price',this.LanguageID);
+            color=this.TitlePaint.GetColor(close,this.YClose);
+            text=close.toFixed(defaultfloatPrecision);
+            aryText.push({Title:title, TitleColor:this.TitleColor, Text:text, Color:color });
+        }
+
+        var isShowAvPrice=true;
+        if (MARKET_SUFFIX_NAME.IsForeignExchange(upperSymbol)) isShowAvPrice=false;                 //外汇没有均价
+        else if (MARKET_SUFFIX_NAME.IsET(upperSymbol) && !MARKET_SUFFIX_NAME.IsETShowAvPrice(upperSymbol)) isShowAvPrice=false;
+        else if (MARKET_SUFFIX_NAME.IsShowAvPrice && !MARKET_SUFFIX_NAME.IsShowAvPrice(upperSymbol)) isShowAvPrice=false;
+
+        //均价
+        if (isShowAvPrice && IFrameSplitOperator.IsNumber(item.AvPrice) && this.IsShowAveragePrice)   
+        {
+            title=g_JSChartLocalization.GetText('Tooltip-AvPrice',this.LanguageID);
+            var color=this.TitlePaint.GetColor(item.AvPrice,this.YClose);
+            text=item.AvPrice.toFixed(defaultfloatPrecision);
+            aryText.push({Title:title, TitleColor:this.TitleColor, Text:text, Color:color });
+        }
+
+        //涨幅
+        if (IFrameSplitOperator.IsNumber(close) && IFrameSplitOperator.IsNumber(this.YClose))
+        {
+            title=g_JSChartLocalization.GetText('Tooltip-Increase',this.LanguageID);
+            var value=(close-this.YClose)/this.YClose*100;
+            color = this.TitlePaint.GetColor(value, 0);
+            text = value.toFixed(2)+'%';
+            aryText.push({Title:title, TitleColor:this.TitleColor, Text:text, Color:color });
+        } 
+
+        //成交量
+        if (IFrameSplitOperator.IsNumber(vol))
+        {
+            title=g_JSChartLocalization.GetText('Tooltip-Vol',this.LanguageID);
+            var text=IFrameSplitOperator.FromatIntegerString(vol,2,this.LanguageID);
+            aryText.push({Title:title, TitleColor:this.TitleColor, Text:text, Color:this.VolColor });
+        }
+
+        //成交金额
+        if (IFrameSplitOperator.IsNumber(amount))
+        {
+            title=g_JSChartLocalization.GetText('Tooltip-Amount',this.LanguageID);
+            var text=IFrameSplitOperator.FormatValueString(amount,2,this.LanguageID);
+            aryText.push({Title:title, TitleColor:this.TitleColor, Text:text, Color:this.AmountColor });
+        }
+
+        if (IFrameSplitOperator.IsNumber(item.Position))
+        {
+            title=g_JSChartLocalization.GetText('Tooltip-Position',this.LanguageID);
+            var text=IFrameSplitOperator.FormatValueString(item.Position,2,this.LanguageID);
+            aryText.push({Title:title, TitleColor:this.TitleColor, Text:text, Color:this.TitleColor });
+        }
+
+        return result;
+    }
+
+    /*
     this.DrawTooltipData=function(item)
     {
         //JSConsole.Chart.Log('[KLineTooltipPaint::DrawKLineData] ', item);
@@ -35296,6 +36627,7 @@ function MinuteTooltipPaint()
 
         if (this.IsHScreen) this.Canvas.restore();
     }
+    */
 }
 
 //PC端 分时图tooltip左侧固定
@@ -35468,6 +36800,7 @@ function MinuteLeftTooltipPaint()
         else if (drawData.Type==1)  //集合竞价
         {
             var item=drawData.Data.Data;
+            if (!item) return;
             var titleItem=this.FormatDate(item.Date);
             if (titleItem) aryText.push(titleItem);
 
@@ -40696,20 +42029,26 @@ function FrameSplitY()
                 var yValue=intervalY*i;
                 item.Value=yValue;
                 item.LineType=9;
+                var isVaild=false;
                 if (intervalLeft!=null)
                 {
                     var leftValue=intervalLeft*i;
                     item.Message[0]=this.FormatValueString(leftValue);
+                    isVaild=true;
                 }
 
                 if (intervalRight!=null && (this.ShareAfterVol==0 || this.ShareAfterVol==2))
                 {
                     var rightValue=intervalRight*i;
                     item.Message[1]=this.FormatValueString(rightValue);
-                }                
-                aryHorizontalInfo.push(item);
+                    isVaild=true;
+                } 
+
+                if (isVaild) aryHorizontalInfo.push(item);
             }
-            return { HorizontalInfo:aryHorizontalInfo,  IsBeforeData:isMultiDayBeforeData, IsAfterData:isMultiDayAfterData };
+
+            if (IFrameSplitOperator.IsNonEmptyArray(aryHorizontalInfo))
+                return { HorizontalInfo:aryHorizontalInfo,  IsBeforeData:isMultiDayBeforeData, IsAfterData:isMultiDayAfterData };
         }
 
         return null;
@@ -42907,6 +44246,10 @@ function ChartCorssCursor()
         this.StringFormatY.Point={X:x, Y:y};
         this.StringFormatY.ClientPos=this.ClientPos;
 
+        this.Canvas.font=this.Font;
+        var textHeight=this.GetFontHeight();
+        if (textHeight>this.TextHeight) this.TextHeight=textHeight;
+
         if ( ((this.ShowTextMode.Left==1 && this.Frame.ChartBorder.Top>=30) || this.ShowTextMode.Left==2 ||
             (this.ShowTextMode.Right==1 && this.Frame.ChartBorder.Bottom>=30) || this.ShowTextMode.Right==2) && this.StringFormatY.Operator() )
         {
@@ -43048,16 +44391,31 @@ function ChartCorssCursor()
             }
         }
 
-        if (this.ShowTextMode.Bottom===1 && this.StringFormatX.Operator())
+        //X轴 Bottom=10 使用第1个指标框位置
+        if ((this.ShowTextMode.Bottom===1 || this.ShowTextMode.Bottom==10) && this.StringFormatX.Operator())
         {
             var text=this.StringFormatX.Text;
             this.Canvas.font=this.Font;
 
             this.Canvas.fillStyle=this.TextBGColor;
             var textWidth=this.Canvas.measureText(text).width+4;    //前后各空2个像素
+            var xText=left;
+
+            if (this.ShowTextMode.Bottom==10)
+            {
+                var frame=this.Frame.SubFrame[0].Frame;
+                if (frame.GetCorssCursorTop)
+                {
+                    var value=frame.GetCorssCursorTop();
+                    if (IFrameSplitOperator.IsNumber(value))
+                    {
+                        xText=value;
+                    }
+                }
+            }
+
             if (y-textWidth/2<3)    //左边位置不够了, 顶着左边画
             {
-                var xText=left;
                 var yText=y;
                 this.Canvas.save();
                 this.Canvas.translate(xText, yText);
@@ -43073,7 +44431,6 @@ function ChartCorssCursor()
             }
             else if (y+textWidth/2>=bottom)
             {
-                var xText=left;
                 var yText=y;
                 this.Canvas.save();
                 this.Canvas.translate(xText, yText);
@@ -43089,9 +44446,7 @@ function ChartCorssCursor()
             }
             else
             {
-                var xText=left;
                 var yText=y;
-
                 this.Canvas.save();
                 this.Canvas.translate(xText, yText);
                 this.Canvas.rotate(90 * Math.PI / 180); //数据和框子旋转180度
@@ -43927,6 +45282,8 @@ function HistoryDataStringFormat()
     this.newMethod();
     delete this.newMethod;
 
+    this.ClassName="HistoryDataStringFormat";
+
     this.Symbol;
     this.UpColor=g_JSChartResource.UpTextColor;
     this.DownColor=g_JSChartResource.DownTextColor;
@@ -43989,16 +45346,18 @@ function HistoryDataStringFormat()
         {
             var vol=data.Vol;
             if (upperSymbol && MARKET_SUFFIX_NAME.IsSHSZ(upperSymbol)) vol/=100; //A股统一转成手
+            var eventUnchangeKLine=null;    //定制平盘K线颜色事件
+            if (this.GetEventCallback) eventUnchangeKLine=this.GetEventCallback(JSCHART_EVENT_ID.ON_CUSTOM_UNCHANGE_KLINE_TITLE_COLOR);
             var strText=
                 "<span class='tooltip-title'>"+strDate+"&nbsp&nbsp"+title2+"</span>"+
                 "<span class='tooltip-con'>"+g_JSChartLocalization.GetText('DivTooltip-Open',this.LanguageID)+"</span>"+
-                "<span class='tooltip-num' style='color:"+this.GetColor(data.Open,data.YClose)+";'>"+ (IFrameSplitOperator.IsNumber(data.Open)? data.Open.toFixed(defaultfloatPrecision):'--') +"</span><br/>"+
+                "<span class='tooltip-num' style='color:"+this.GetPriceColor("DivTooltip-Open",data.Open,data.YClose,data,eventUnchangeKLine)+";'>"+ (IFrameSplitOperator.IsNumber(data.Open)? data.Open.toFixed(defaultfloatPrecision):'--') +"</span><br/>"+
                 "<span class='tooltip-con'>"+g_JSChartLocalization.GetText('DivTooltip-High',this.LanguageID)+"</span>"+
-                "<span class='tooltip-num' style='color:"+this.GetColor(data.High,data.YClose)+";'>"+ (IFrameSplitOperator.IsNumber(data.High)? data.High.toFixed(defaultfloatPrecision):'--') +"</span><br/>"+
+                "<span class='tooltip-num' style='color:"+this.GetPriceColor("DivTooltip-High",data.High,data.YClose,data,eventUnchangeKLine)+";'>"+ (IFrameSplitOperator.IsNumber(data.High)? data.High.toFixed(defaultfloatPrecision):'--') +"</span><br/>"+
                 "<span class='tooltip-con'>"+g_JSChartLocalization.GetText('DivTooltip-Low',this.LanguageID)+"</span>"+
-                "<span class='tooltip-num' style='color:"+this.GetColor(data.Low,data.YClose)+";'>"+ (IFrameSplitOperator.IsNumber(data.Low)? data.Low.toFixed(defaultfloatPrecision):'--') +"</span><br/>"+
+                "<span class='tooltip-num' style='color:"+this.GetPriceColor('DivTooltip-Low',data.Low,data.YClose,data,eventUnchangeKLine)+";'>"+ (IFrameSplitOperator.IsNumber(data.Low)? data.Low.toFixed(defaultfloatPrecision):'--') +"</span><br/>"+
                 "<span class='tooltip-con'>"+g_JSChartLocalization.GetText('DivTooltip-Close',this.LanguageID)+"</span>"+
-                "<span class='tooltip-num' style='color:"+this.GetColor(data.Close,data.YClose)+";'>"+ (IFrameSplitOperator.IsNumber(data.Close)? data.Close.toFixed(defaultfloatPrecision):'--') +"</span><br/>"+
+                "<span class='tooltip-num' style='color:"+this.GetPriceColor('DivTooltip-Close',data.Close,data.YClose,data,eventUnchangeKLine)+";'>"+ (IFrameSplitOperator.IsNumber(data.Close)? data.Close.toFixed(defaultfloatPrecision):'--') +"</span><br/>"+
                 //"<span style='color:"+this.YClose+";font:微软雅黑;font-size:12px'>&nbsp;前收: "+IFrameSplitOperator.FormatValueString(data.YClose,2)+"</span><br/>"+
                 "<span class='tooltip-con'>"+g_JSChartLocalization.GetText('DivTooltip-Vol',this.LanguageID)+"</span>"+
                 "<span class='tooltip-num' style='color:"+this.VolColor+";'>"+ (IFrameSplitOperator.IsNumber(vol)? IFrameSplitOperator.FormatValueString(vol,2,this.LanguageID):'--') +"</span><br/>"+
@@ -44045,6 +45404,20 @@ function HistoryDataStringFormat()
         if(price>yclse) return this.UpColor;
         else if (price<yclse) return this.DownColor;
         else return this.UnchagneColor;
+    }
+
+    this.GetPriceColor=function(titleName, price, yClose, item, event)
+    {
+        var color=this.GetColor(price, yClose);
+        if (price==yClose && event && event.Callback)
+        {
+            var sendData={ Item:item, TitleName:titleName, DefaultColor:color, TitleColor:null, ClassName:this.ClassName };
+            event.Callback(event, sendData);
+            if (sendData.TitleColor)    color=sendData.TitleColor;
+        }
+
+
+        return color;
     }
 }
 
@@ -44529,40 +45902,17 @@ function DynamicKLineTitlePainting()
         return item;
     }
 
-    this.DrawItem=function(item)
+    this.GetFormatTitle=function(data)
     {
-        var isHScreen=this.Frame.IsHScreen===true;
-        var left=this.Frame.ChartBorder.GetLeft();
-        var bottom=this.Frame.ChartBorder.GetTop()-this.Frame.ChartBorder.Top/2;
-        var right=this.Frame.ChartBorder.GetRight();
+        if (!data || !data.Data) return;
+
         var defaultfloatPrecision=GetfloatPrecision(this.Symbol);//价格小数位数
         var upperSymbol=this.Symbol.toUpperCase();
+        var item=data.Data;
+        var aryText=[];
+        var result={ AryText:aryText };
 
-        if (isHScreen)
-        {
-            if (this.Frame.ChartBorder.Right<5) return;
-            var left=2;
-            var bottom=this.Frame.ChartBorder.Right/2;    //上下居中显示
-            var right=this.Frame.ChartBorder.GetHeight();
-            var xText=this.Frame.ChartBorder.GetChartWidth();
-            var yText=this.Frame.ChartBorder.GetTop();
-            this.Canvas.translate(xText, yText);
-            this.Canvas.rotate(90 * Math.PI / 180);
-        }
-        else
-        {
-            if (this.Frame.ChartBorder.Top<5*GetDevicePixelRatio()) return;
-        }
-
-        this.Canvas.textAlign="left";
-        this.Canvas.textBaseline="middle";
-        this.Canvas.font=this.Font;
-        var position = { Left: left, Bottom: bottom, IsHScreen: isHScreen };
-
-        if (this.IsShowName)
-        {
-            if (!this.DrawText(this.Name,this.NameColor,position)) return;
-        }
+        if (this.IsShowName) aryText.push({ Text:this.Name, Color:this.NameColor });
 
         if (this.IsShowSettingInfo)
         {
@@ -44579,138 +45929,204 @@ function DynamicKLineTitlePainting()
             var text="("+periodName+" "+rightName+")";
 
             if (!MARKET_SUFFIX_NAME.IsEnableRight(this.Data.Period, this.Symbol, this.HQChart.RightFormula)) text="("+periodName+")";
-            if (!this.DrawText(text,this.SettingColor,position)) return;
+            aryText.push({ Text:text, Color:this.SettingColor });
         }
 
         var text=this.GetKLineCalculateTitle();
-        if (text)
-        {
-            if (!this.DrawText(text,this.NameColor,position)) return;
-        }
+        if (text) aryText.push({ Text:text, Color:this.NameColor });
 
         if (this.IsShowDateTime)    //是否显示日期
         {
             var text=IFrameSplitOperator.FormatDateString(item.Date);
-            if (!this.DrawText(text,this.DateTimeColor,position)) return;
+            aryText.push({ Text:text, Color:this.DateTimeColor });
         }
 
         var isTickPeriod=ChartData.IsTickPeriod(this.Period);
-
         if (ChartData.IsMinutePeriod(this.Period,true) && IFrameSplitOperator.IsNumber(item.Time))
         {
             var text=IFrameSplitOperator.FormatTimeString(item.Time);
-            if (!this.DrawText(text,this.DateTimeColor,position)) return;
+            aryText.push({ Text:text, Color:this.DateTimeColor });
         }
         else if (ChartData.IsSecondPeriod(this.Period) && IFrameSplitOperator.IsNumber(item.Time))
         {
             var text=IFrameSplitOperator.FormatTimeString(item.Time, "HH:MM:SS");
-            if (!this.DrawText(text,this.DateTimeColor,position)) return;
+            aryText.push({ Text:text, Color:this.DateTimeColor });
         }
         else if (isTickPeriod)
         {
             var text=IFrameSplitOperator.FormatTimeString(item.Time, "HH:MM:SS");
-            if (!this.DrawText(text,this.DateTimeColor,position)) return;
+            aryText.push({ Text:text, Color:this.DateTimeColor });
         }
 
         if (isTickPeriod)
         {
             var color=this.GetColor(item.Open,item.YClose);
             var text=g_JSChartLocalization.GetText('KTitle-Price',this.LanguageID)+item.Open.toFixed(defaultfloatPrecision);
-            if (!this.DrawText(text,color,position)) return;
+            aryText.push({ Text:text, Color:color});
 
-            if (item.YClose>0)
+            if (IFrameSplitOperator.IsNumber(item.YClose) && item.YClose!=0)
             {
                 var value=(item.Close-item.YClose)/item.YClose*100;
                 var color = this.GetColor(value, 0);
                 var text = g_JSChartLocalization.GetText('KTitle-Increase',this.LanguageID) + value.toFixed(2)+'%';
-                if (!this.DrawText(text,color,position)) return;
+                aryText.push({ Text:text, Color:color});
             }
 
-            return;
+            return result;
         }
 
-        if (item.IsNonTrade) return;    //非交易日 没数据 不显示
+        if (item.IsNonTrade) return result;    //非交易日 没数据 不显示
+
+        var eventUnchangeKLine=null;    //定制平盘K线颜色事件
+        if (this.GetEventCallback) eventUnchangeKLine=this.GetEventCallback(JSCHART_EVENT_ID.ON_CUSTOM_UNCHANGE_KLINE_TITLE_COLOR);
 
         if (IFrameSplitOperator.IsNumber(item.Open))
         {
             var color=this.GetColor(item.Open,item.YClose);
             var text=g_JSChartLocalization.GetText('KTitle-Open',this.LanguageID)+item.Open.toFixed(defaultfloatPrecision);
-            if (!this.DrawText(text,color,position)) return;
+            if (item.Open==item.YClose && eventUnchangeKLine)
+            {
+                var sendData={ Item:item, TitleName:"KTitle-Open", DefaultColor:color, TitleColor:null };
+                if (this.OnUnchangeTitleColor(eventUnchangeKLine, sendData)) color=sendData.TitleColor;
+            }
+
+            aryText.push({ Text:text, Color:color});
         }
        
         if (IFrameSplitOperator.IsNumber(item.High))
         {
             var color=this.GetColor(item.High,item.YClose);
             var text=g_JSChartLocalization.GetText('KTitle-High',this.LanguageID)+item.High.toFixed(defaultfloatPrecision);
-            if (!this.DrawText(text,color,position)) return;
+            if (item.High==item.YClose && eventUnchangeKLine)
+            {
+                var sendData={ Item:item, TitleName:"KTitle-High", DefaultColor:color, TitleColor:null };
+                if (this.OnUnchangeTitleColor(eventUnchangeKLine, sendData)) color=sendData.TitleColor;
+            }
+            aryText.push({ Text:text, Color:color});
         }
         
         if (IFrameSplitOperator.IsNumber(item.Low))
         {
             var color=this.GetColor(item.Low,item.YClose);
             var text=g_JSChartLocalization.GetText('KTitle-Low',this.LanguageID)+item.Low.toFixed(defaultfloatPrecision);
-            if (!this.DrawText(text,color,position)) return;
+            if (item.Low==item.YClose && eventUnchangeKLine)
+            {
+                var sendData={ Item:item, TitleName:"KTitle-Low", DefaultColor:color, TitleColor:null };
+                if (this.OnUnchangeTitleColor(eventUnchangeKLine, sendData)) color=sendData.TitleColor;
+            }
+            aryText.push({ Text:text, Color:color});
         }
         
         if (IFrameSplitOperator.IsNumber(item.Close))
         {
             var color=this.GetColor(item.Close,item.YClose);
             var text=g_JSChartLocalization.GetText('KTitle-Close',this.LanguageID)+item.Close.toFixed(defaultfloatPrecision);
-            if (!this.DrawText(text,color,position)) return;
+            if (item.Close==item.YClose && eventUnchangeKLine)
+            {
+                var sendData={ Item:item, TitleName:"KTitle-Close", DefaultColor:color, TitleColor:null };
+                if (this.OnUnchangeTitleColor(eventUnchangeKLine, sendData)) color=sendData.TitleColor;
+            }
+            aryText.push({ Text:text, Color:color});
         }
         
+        //涨幅
         if (item.YFClose>0 && MARKET_SUFFIX_NAME.IsChinaFutures(upperSymbol))
         {
             var value=(item.Close-item.YFClose)/item.YFClose*100;
             var color = this.GetColor(value, 0);
             var text = g_JSChartLocalization.GetText('KTitle-Increase',this.LanguageID) + value.toFixed(2)+'%';
-            if (!this.DrawText(text,color,position)) return;
+            aryText.push({ Text:text, Color:color});
         }
         else if (item.YClose>0)
         {
             var value=(item.Close-item.YClose)/item.YClose*100;
             var color = this.GetColor(value, 0);
             var text = g_JSChartLocalization.GetText('KTitle-Increase',this.LanguageID) + value.toFixed(2)+'%';
-            if (!this.DrawText(text,color,position)) return;
+            aryText.push({ Text:text, Color:color});
         }
 
-        if (IFrameSplitOperator.IsNumber(item.Vol))
+        if (IFrameSplitOperator.IsNumber(item.Vol)) //成交量
         {
             var vol=item.Vol;
             if (upperSymbol && MARKET_SUFFIX_NAME.IsSHSZ(upperSymbol)) vol/=100;   //A股原始单位股, 转成股
             var text=g_JSChartLocalization.GetText('KTitle-Vol',this.LanguageID)+IFrameSplitOperator.FromatIntegerString(vol,2,this.LanguageID);
-            if (!this.DrawText(text,this.VolColor,position)) return;
+            aryText.push({ Text:text, Color:this.VolColor});
         }
        
-        if (IFrameSplitOperator.IsNumber(item.Amount))
+        if (IFrameSplitOperator.IsNumber(item.Amount))  //成交金额
         {
             var text=g_JSChartLocalization.GetText('KTitle-Amount',this.LanguageID)+IFrameSplitOperator.FormatValueString(item.Amount,2,this.LanguageID);
-            if (!this.DrawText(text,this.AmountColor,position)) return;
+            aryText.push({ Text:text, Color:this.AmountColor});
         }
 
         if (MARKET_SUFFIX_NAME.IsSHSZStockA(this.Symbol) && item.FlowCapital>0)   //A股有换手率
         {
             var value=item.Vol/item.FlowCapital*100;    //成交量/流通A股*100
             var text=g_JSChartLocalization.GetText('KTitle-Exchange',this.LanguageID)+IFrameSplitOperator.FormatValueString(value,2,this.LanguageID)+'%';
-            if (!this.DrawText(text,this.TurnoverRateColor,position)) return;
+            aryText.push({ Text:text, Color:this.TurnoverRateColor});
         }
 
         if (MARKET_SUFFIX_NAME.IsFutures(upperSymbol) && IFrameSplitOperator.IsNumber(item.Position))  //持仓量
         {
             var text=g_JSChartLocalization.GetText('KTitle-Position',this.LanguageID)+item.Position;
-            if (!this.DrawText(text,this.PositionColor,position)) return;
+            aryText.push({ Text:text, Color:this.PositionColor});
         }
 
         //叠加股票的名字
-        for(var i in this.OverlayChartPaint)
+        if (IFrameSplitOperator.IsNonEmptyArray(this.OverlayChartPaint))
         {
-            var item=this.OverlayChartPaint[i];
-            if (!item.Symbol || !item.Title) continue;
-        
-            var name=item.Title;
-            var clrText=item.Color;
-            var text='['+name+']';
-            if (!this.DrawText(text,clrText,position)) return;
+            for(var i=0;i<this.OverlayChartPaint.length;++i)
+            {
+                var item=this.OverlayChartPaint[i];
+                if (!item.Symbol || !item.Title) continue;
+            
+                var clrText=item.Color;
+                var text=`[${item.Title}]`;
+                aryText.push({ Text:text, Color:clrText});
+            }
+        }
+
+        return result;
+    }
+
+    this.DrawItem=function(item)
+    {
+        var isHScreen=this.Frame.IsHScreen===true;
+        var left=this.Frame.ChartBorder.GetLeft();
+        var bottom=this.Frame.ChartBorder.GetTop()-this.Frame.ChartBorder.Top/2;
+        var right=this.Frame.ChartBorder.GetRight();
+        //var defaultfloatPrecision=GetfloatPrecision(this.Symbol);//价格小数位数
+        //var upperSymbol=this.Symbol.toUpperCase();
+        var pixelRatio=GetDevicePixelRatio();
+        if (isHScreen)
+        {
+            if (this.Frame.ChartBorder.Right<5*pixelRatio) return;
+            var left=2;
+            var bottom=this.Frame.ChartBorder.Right/2;    //上下居中显示
+            var right=this.Frame.ChartBorder.GetHeight();
+            var xText=this.Frame.ChartBorder.GetChartWidth();
+            var yText=this.Frame.ChartBorder.GetTop();
+            this.Canvas.translate(xText, yText);
+            this.Canvas.rotate(90 * Math.PI / 180);
+        }
+        else
+        {
+            if (this.Frame.ChartBorder.Top<5*pixelRatio) return;
+        }
+
+        this.Canvas.textAlign="left";
+        this.Canvas.textBaseline="middle";
+        this.Canvas.font=this.Font;
+        var position = { Left: left, Bottom: bottom, IsHScreen: isHScreen };
+        var titleData=this.GetFormatTitle({ Data:item });
+
+        if (titleData && IFrameSplitOperator.IsNonEmptyArray(titleData.AryText))
+        {
+            for(var i=0;i<titleData.AryText.length;++i)
+            {
+                var item=titleData.AryText[i];
+                if (!this.DrawText(item.Text,item.Color,position)) break;
+            }
         }
     }
 
@@ -44786,6 +46202,17 @@ function DynamicKLineTitlePainting()
         if(price>yclse) return this.UpColor;
         else if (price<yclse) return this.DownColor;
         else return this.UnchagneColor;
+    }
+
+    this.OnUnchangeTitleColor=function(event, sendData)
+    {
+        if (!event || !event.Callback) return false;
+        sendData.ClassName=this.ClassName;
+        event.Callback(event, sendData, this);
+
+        if (sendData && sendData.TitleColor) return true;
+
+        return false;
     }
 
     this.DrawText=function(title,color,position)
@@ -44876,15 +46303,18 @@ function DynamicMinuteTitlePainting()
     this.GetCurrentAuctionData=function()   //获取当前鼠标所在位置的盘前盘后数据
     {
         var isHScreen=this.Frame.IsHScreen===true;
+        //空数据 返回坐标信息
+        var emptyData={ ClientPos:this.PointInfo.ClientPos, X:this.PointInfo.Point.X, Y:this.PointInfo.Point.Y };
+
         if (this.PointInfo.ClientPos==2)
         {
-            if (!this.BeforeOpenData) return null;
-            if (!this.CallAcutionXOperator) return null;
+            if (!this.BeforeOpenData) return emptyData;
+            if (!this.CallAcutionXOperator) return emptyData;
 
             this.CallAcutionXOperator.Value=isHScreen?this.PointInfo.Point.Y:this.PointInfo.Point.X;
             this.CallAcutionXOperator.Point={X:this.PointInfo.Point.X, Y:this.PointInfo.Point.Y};
             this.CallAcutionXOperator.ClientPos=this.PointInfo.ClientPos;
-            if (!this.CallAcutionXOperator.Operator()) return null;
+            if (!this.CallAcutionXOperator.Operator()) return emptyData;
             
             var callbackData={Explain:"BeforeOpen", Data:null, DataIndex:null, DataTotalCount:this.BeforeOpenData.TotalCount };
             callbackData.DataIndex=this.CallAcutionXOperator.DataIndex;
@@ -44894,13 +46324,13 @@ function DynamicMinuteTitlePainting()
         }
         else if (this.PointInfo.ClientPos==3)
         {
-            if (!this.AfterCloseData) return null;
-            if (!this.CallAcutionXOperator) return null;
+            if (!this.AfterCloseData) return emptyData;
+            if (!this.CallAcutionXOperator) return emptyData;
             
             this.CallAcutionXOperator.Value=isHScreen?this.PointInfo.Point.Y:this.PointInfo.Point.X;
             this.CallAcutionXOperator.Point={X:this.PointInfo.Point.X, Y:this.PointInfo.Point.Y};
             this.CallAcutionXOperator.ClientPos=this.PointInfo.ClientPos;
-            if (!this.CallAcutionXOperator.Operator()) return null;
+            if (!this.CallAcutionXOperator.Operator()) return emptyData;
 
             var callbackData={Explain:"AfterClose", Data:null, DataIndex:null, DataTotalCount:this.AfterCloseData.TotalCount };
             callbackData.DataIndex=this.CallAcutionXOperator.DataIndex;
@@ -44910,13 +46340,13 @@ function DynamicMinuteTitlePainting()
         }
         else if (this.PointInfo.ClientPos>=200 && this.PointInfo.ClientPos<=299)
         {
-            if (!this.MultiDayBeforeOpenData || !IFrameSplitOperator.IsNonEmptyArray(this.MultiDayBeforeOpenData) ) return null;
+            if (!this.MultiDayBeforeOpenData || !IFrameSplitOperator.IsNonEmptyArray(this.MultiDayBeforeOpenData) ) return emptyData;
 
             var x=this.Frame.IsHScreen==true?this.PointInfo.Point.Y:this.PointInfo.Point.X;
             this.CallAcutionXOperator.Value=x;
             this.CallAcutionXOperator.Point={X:this.PointInfo.Point.X, Y:this.PointInfo.Point.Y};
             this.CallAcutionXOperator.ClientPos=this.PointInfo.ClientPos;
-            if (!this.CallAcutionXOperator.Operator()) return null;
+            if (!this.CallAcutionXOperator.Operator()) return emptyData;
 
             var dayItem=this.MultiDayBeforeOpenData[this.CallAcutionXOperator.DayIndex];
             var callbackData={Explain:"MultiDayBeforeOpen", Data:null, DataIndex:null };
@@ -44928,13 +46358,13 @@ function DynamicMinuteTitlePainting()
         }
         else if (this.PointInfo.ClientPos>=300 && this.PointInfo.ClientPos<=399)
         {
-            if (!this.MultiDayAfterCloseData || !IFrameSplitOperator.IsNonEmptyArray(this.MultiDayAfterCloseData) ) return null;
+            if (!this.MultiDayAfterCloseData || !IFrameSplitOperator.IsNonEmptyArray(this.MultiDayAfterCloseData) ) return emptyData;
 
             var x=this.Frame.IsHScreen==true?this.PointInfo.Point.Y:this.PointInfo.Point.X;
             this.CallAcutionXOperator.Value=x;
             this.CallAcutionXOperator.Point={X:this.PointInfo.Point.X, Y:this.PointInfo.Point.Y};
             this.CallAcutionXOperator.ClientPos=this.PointInfo.ClientPos;
-            if (!this.CallAcutionXOperator.Operator()) return null;
+            if (!this.CallAcutionXOperator.Operator()) return emptyData;
 
             var dayItem=this.MultiDayAfterCloseData[this.CallAcutionXOperator.DayIndex];
             var callbackData={Explain:"MultiDayAfterClose", Data:null, DataIndex:null };
@@ -44945,13 +46375,14 @@ function DynamicMinuteTitlePainting()
             return callbackData;
         }
 
-        return null;
+        return emptyData;
     }
 
     this.GetLatestKLineData=function(bCallAuction)  //获取最新一个K线数据 bCallAuction=是否包含集合竞价数据
     {
         var beforeItem=null;
         var beforeDataVer=1;
+        var beforeExplain;
         if (IFrameSplitOperator.IsNonEmptyArray(this.MultiDayBeforeOpenData))
         {
             var item=this.MultiDayBeforeOpenData[this.MultiDayBeforeOpenData.length-1];
@@ -44959,16 +46390,19 @@ function DynamicMinuteTitlePainting()
             {
                 beforeDataVer=item.Ver;
                 beforeItem=item.Data[item.Data.length-1];
+                beforeExplain="MultiDayBeforeOpen";
             }  
         }
         else if (this.BeforeOpenData && IFrameSplitOperator.IsNonEmptyArray(this.BeforeOpenData.Data))
         {
             beforeItem=this.BeforeOpenData.Data[this.BeforeOpenData.Data.length-1];
             beforeDataVer=this.BeforeOpenData.Ver;
+            beforeExplain="BeforeOpen";
         }
 
         var afterItem=null;
         var afterDataVer=1;
+        var afterExplain
         if (IFrameSplitOperator.IsNonEmptyArray(this.MultiDayAfterCloseData))
         {
             var item=this.MultiDayAfterCloseData[this.MultiDayAfterCloseData.length-1];
@@ -44976,6 +46410,7 @@ function DynamicMinuteTitlePainting()
             {
                 afterDataVer=item.Ver;
                 afterItem=item.Data[item.Data.length-1];
+                afterExplain="MultiDayAfterClose";
                 if (item.Data.length==item.TotalCount) afterItem=null;  //收盘以后，显示最后的1分钟价格就可以
             }
         }
@@ -44983,6 +46418,7 @@ function DynamicMinuteTitlePainting()
         {
             afterItem=this.AfterOpenData.Data[this.AfterOpenData.Data.length-1];
             afterDataVer=this.AfterOpenData.Ver;
+            afterExplain="AfterClose"
         }
 
         var dataItem=null;
@@ -44994,28 +46430,151 @@ function DynamicMinuteTitlePainting()
 
         if (!beforeItem && !afterItem && !dataItem) return null;
 
-        if (!bCallAuction) return dataItem;
+        if (!bCallAuction) return { Type:0, Data:dataItem };
 
-        if (!dataItem) return { Type:1 , Data:beforeItem ,Ver: beforeDataVer };
+        if (!dataItem) return { Type:1 , Data:beforeItem ,Ver: beforeDataVer, Explain:beforeExplain };
 
         if (beforeItem && dataItem) //盘前数据
         {
-            if (beforeItem.Date>dataItem.Date) return { Type:2, Data:beforeItem, Ver: beforeDataVer};
+            if (beforeItem.Date>dataItem.Date || (beforeItem.Date==dataItem.Date && beforeItem.Time>dataItem.Time && afterDataVer==1.0) ) 
+                return { Type:2, Data:beforeItem, Ver: beforeDataVer,  Explain:beforeExplain};
         }
 
         if (afterItem && dataItem)  //盘后数据
         {
-            if (afterItem.Date>=dataItem.Date) return { Type:1, Data:afterItem, Ver:afterDataVer };
+            if (afterItem.Date>=dataItem.Date) return { Type:1, Data:afterItem, Ver:afterDataVer, Explain:afterExplain };
         }
 
 
         return { Type:0 ,Data:dataItem };
     }
 
+    this.GetFormatTitle=function(data) //{ Data:, IsLastOne: }
+    {
+        if (!data || !data.Data) return;
+
+        var defaultfloatPrecision=GetfloatPrecision(this.Symbol);//价格小数位数
+        var item=data.Data;
+        var isLastOne=data.IsLastOne;
+        var aryText=[]; //{Color:, Text: }
+
+        if(this.IsShowName) aryText.push({Text:this.Name, Color:this.NameColor});
+
+        if (this.IsShowDate || this.IsShowTime)
+        {
+            var bShowUpdateTime=false;  //是否显示了更新时间
+            if (isLastOne && this.ShowLastDataFormat==1)
+            {
+                if (this.Data && this.Data.UpdateTime && IFrameSplitOperator.IsNumber(this.Data.UpdateTime.Date) && IFrameSplitOperator.IsNumber(this.Data.UpdateTime.Time))
+                {
+                    var text=IFrameSplitOperator.FormatTimeString(this.Data.UpdateTime.Time, "HH:MM:SS");
+                    aryText.push({Text:text, Color:this.DateTimeColor});
+                    bShowUpdateTime=true;
+                }
+            }
+            
+            if (!bShowUpdateTime)
+            {
+                if (this.TimeFormat)    //指定时间格式
+                {
+                    var strDate=null, strTime=null, text=null;
+                    if (this.IsShowDate) strDate=IFrameSplitOperator.FormatDateString("YYYY-MM-DD", item.Date);
+                    if (this.IsShowTime) strTime=IFrameSplitOperator.FormatTimeString(item.Time,this.TimeFormat);
+                    if (strDate && strTime) text=`${strDate} ${strTime}`;
+                    else if (strDate) text=strDate;
+                    else if (strTime) text=strTime;
+                    if (text) aryText.push({Text:text, Color:this.DateTimeColor});
+                }
+                else
+                {
+                    var text=IFrameSplitOperator.FormatDateTimeString(item.DateTime,this.IsShowDate, this.IsShowTime);
+                    aryText.push({Text:text, Color:this.DateTimeColor});
+                }
+            }
+        }
+
+        var close=item.Close;
+        var increase=item.Increase;
+        var vol=item.Vol;
+        var amount=item.Amount;
+
+        if (IFrameSplitOperator.IsNumber(close))
+        {
+            var color=this.GetColor(close,this.YClose);
+            var text=g_JSChartLocalization.GetText('MTitle-Close',this.LanguageID)+close.toFixed(defaultfloatPrecision);
+            aryText.push({Text:text, Color:color});
+        }
+
+        if (IFrameSplitOperator.IsNumber(increase))
+        {
+            var color=this.GetColor(increase,0);
+            var text=g_JSChartLocalization.GetText('MTitle-Increase',this.LanguageID)+increase.toFixed(2)+'%';
+            aryText.push({Text:text, Color:color});
+        }
+
+        var isShowAvPrice=true;
+        var upperSymbol=this.Symbol.toUpperCase();
+        if (MARKET_SUFFIX_NAME.IsET(upperSymbol) && !MARKET_SUFFIX_NAME.IsETShowAvPrice(upperSymbol)) isShowAvPrice=false;
+        else if (MARKET_SUFFIX_NAME.IsShowAvPrice && !MARKET_SUFFIX_NAME.IsShowAvPrice(upperSymbol)) isShowAvPrice=false;
+
+        if (IFrameSplitOperator.IsNumber(item.AvPrice) && isShowAvPrice && this.IsShowAveragePrice)
+        {
+            var color=this.GetColor(item.AvPrice,this.YClose);
+            var text=g_JSChartLocalization.GetText('MTitle-AvPrice',this.LanguageID)+item.AvPrice.toFixed(defaultfloatPrecision);
+            aryText.push({Text:text, Color:color});
+        }
+
+        if (IFrameSplitOperator.IsNumber(vol))
+        {
+            var text=g_JSChartLocalization.GetText('MTitle-Vol',this.LanguageID)+IFrameSplitOperator.FromatIntegerString(vol,2,this.LanguageID);
+            aryText.push({Text:text, Color:this.VolColor});
+        }
+
+        if (IFrameSplitOperator.IsNumber(amount))
+        {
+            var text=g_JSChartLocalization.GetText('MTitle-Amount',this.LanguageID)+IFrameSplitOperator.FormatValueString(amount,2,this.LanguageID);
+            aryText.push({Text:text, Color:this.AmountColor});
+        }
+
+        if (IFrameSplitOperator.IsNumber(item.Position))
+        {
+            var text=g_JSChartLocalization.GetText('MTitle-Position',this.LanguageID)+IFrameSplitOperator.FromatIntegerString(item.Position,2,this.LanguageID);
+            aryText.push({Text:text, Color:this.VolColor});
+        }
+
+        if (isLastOne && this.ShowLastDataFormat==0)  //显示数据最后的更新时间
+        {
+            if (this.Data && this.Data.UpdateTime && IFrameSplitOperator.IsNumber(this.Data.UpdateTime.Date) && IFrameSplitOperator.IsNumber(this.Data.UpdateTime.Time))
+            {
+                var text=g_JSChartLocalization.GetText('MTitle-UpdateTime',this.LanguageID)+IFrameSplitOperator.FormatTimeString(this.Data.UpdateTime.Time, "HH:MM:SS");
+                aryText.push({Text:text, Color:this.DateTimeColor});
+            }
+        }
+
+        //叠加股票的名字
+        if (IFrameSplitOperator.IsNonEmptyArray(this.OverlayChartPaint))
+        {
+            for(var i=0; i<this.OverlayChartPaint.length; ++i)
+            {
+                var item=this.OverlayChartPaint[i];
+                if (!item.Symbol || !item.Title) continue;
+
+                var clrText=item.Color;
+                var text=`[${item.Title}]`;
+
+                aryText.push({Text:text, Color:clrText});
+            }
+        }
+       
+
+        return { AryText:aryText };
+    }
+
     this.DrawItem=function(item, isLastOne)    //isLastOne 是否是最后一个数据
     {
         if (!item) return;
 
+        var pixelRatio=GetDevicePixelRatio();
         var isHScreen=this.Frame.IsHScreen===true;
         var border=this.Frame.GetBorder();
         var left=border.Left;
@@ -45025,7 +46584,7 @@ function DynamicMinuteTitlePainting()
 
         if (isHScreen)
         {
-            if (this.Frame.ChartBorder.Right<5) return;
+            if (this.Frame.ChartBorder.Right<5*pixelRatio) return;
             var left=2;
             var bottom=this.Frame.ChartBorder.Right/2;    //上下居中显示
             var xText=border.ChartWidth;
@@ -45035,14 +46594,14 @@ function DynamicMinuteTitlePainting()
         }
         else
         {
-            if (this.Frame.ChartBorder.Top<5) return;
+            if (this.Frame.ChartBorder.Top<5*pixelRatio) return;
         }
 
         this.Canvas.textAlign="left";
         if (this.TitleBaseLine==0)  //上
         {
             this.Canvas.textBaseline="top";
-            bottom=2*GetDevicePixelRatio();
+            bottom=2*pixelRatio;
         }
         else if (this.TitleBaseLine==2) //下
         {
@@ -45055,6 +46614,18 @@ function DynamicMinuteTitlePainting()
         }
         
         var position = { Left: left, Bottom: bottom, IsHScreen: isHScreen };
+        var titleData=this.GetFormatTitle({ Data:item, IsLastOne:isLastOne });
+
+        if (titleData && IFrameSplitOperator.IsNonEmptyArray(titleData.AryText))
+        {
+            for(var i=0;i<titleData.AryText.length;++i)
+            {
+                var item=titleData.AryText[i];
+                if (!this.DrawText(item.Text,item.Color,position)) break;
+            }
+        }
+
+        /*
         if(this.IsShowName)
         {
             if (!this.DrawText(this.Name,this.NameColor,position)) return;
@@ -45166,19 +46737,108 @@ function DynamicMinuteTitlePainting()
             var text='['+name+']';
             if (!this.DrawText(text,clrText,position)) return;
         }
+        */
+    }
+
+    //盘前 盘后数据格式化
+    this.FormatCallAuctionTitle=function(data)
+    {
+        var aryText=[] //{ Color: Text: }
+
+        var defaultfloatPrecision=GetfloatPrecision(this.Symbol);//价格小数位数
+
+        //股票名称
+        if (this.IsShowName) aryText.push({Text:this.Name, Color:this.NameColor});
+
+        if (data && data.Data)
+        {
+            var item=data.Data;
+            var text, strTime, strDate;
+            strDate=IFrameSplitOperator.FormatDateString(item.Date);
+
+            //时间
+            if (data.Ver==1.0) strTime=IFrameSplitOperator.FormatTimeString(item.Time,"HH:MM");
+            else strTime=IFrameSplitOperator.FormatTimeString(item.Time,"HH:MM:SS");
+            if (data.Explain=="MultiDayBeforeOpen"|| data.Explain=="MultiDayAfterClose") text=`${strDate} ${strTime}`;
+            else text=strTime;
+            aryText.push({Text:text, Color:this.DateTimeColor});
+
+            //匹配价
+            if(IFrameSplitOperator.IsNumber(item.Price) && this.CallAuctionShowTitle.has("MTitle-AC-Price"))
+            {
+                var color=this.GetColor(item.Price,this.YClose);
+                var filedName='MTitle-AC-Price';
+                if (data.Ver==1.0) filedName="MTitle-Close";
+                var text=g_JSChartLocalization.GetText(filedName,this.LanguageID)+item.Price.toFixed(defaultfloatPrecision);
+                aryText.push({Text:text, Color:color});
+            }
+
+             //竞价涨幅
+            if (IFrameSplitOperator.IsPlusNumber(this.YClose) && IFrameSplitOperator.IsNumber(item.Price) && this.CallAuctionShowTitle.has("MTitle-AC-Increase"))
+            {
+                var value=(item.Price-this.YClose)/this.YClose*100;
+                var color=this.GetColor(value,0);
+                var filedName='MTitle-AC-Increase';
+                if (data.Ver==1.0) filedName="MTitle-Increase";
+                var text=g_JSChartLocalization.GetText(filedName,this.LanguageID)+value.toFixed(2)+"%";
+                aryText.push({Text:text, Color:color});
+            }
+
+            //均价
+            if (IFrameSplitOperator.IsNumber(item.AvPrice) && this.CallAuctionShowTitle.has("MTitle-AC-AvPrice"))
+            {
+                var color=this.GetColor(item.AvPrice,this.YClose);
+                var text=g_JSChartLocalization.GetText('MTitle-AC-AvPrice',this.LanguageID)+item.AvPrice.toFixed(defaultfloatPrecision);
+                aryText.push({Text:text, Color:color});
+            }
+
+             //匹配量
+            if (IFrameSplitOperator.IsNumber(item.Vol[0]) && this.CallAuctionShowTitle.has("MTitle-AC-Vol"))
+            {
+                var filedName='MTitle-AC-Vol';
+                if (data.Ver==1.0) filedName="MTitle-Vol";
+                var text=g_JSChartLocalization.GetText(filedName,this.LanguageID)+IFrameSplitOperator.FromatIntegerString(item.Vol[0],2);
+                aryText.push({Text:text, Color:this.VolColor});
+            }
+            
+            //未匹配量
+            if (IFrameSplitOperator.IsNumber(item.Vol[1]) && this.CallAuctionShowTitle.has("MTitle-AC-NotMatchVol"))
+            {
+                var text=g_JSChartLocalization.GetText('MTitle-AC-NotMatchVol',this.LanguageID)+IFrameSplitOperator.FromatIntegerString(item.Vol[1],2);
+                aryText.push({Text:text, Color:this.VolColor});
+            }
+
+            if (item.ExtendData && IFrameSplitOperator.IsNonEmptyArray(item.ExtendData.Amount))
+            {
+                var aryAmount=item.ExtendData.Amount;
+                if (IFrameSplitOperator.IsNumber(aryAmount[0]) && this.CallAuctionShowTitle.has("MTitle-AC-Amount"))  //匹配量金额
+                {
+                    var text=g_JSChartLocalization.GetText('MTitle-AC-Amount',this.LanguageID)+IFrameSplitOperator.FromatIntegerString(aryAmount[0],2);
+                    aryText.push({Text:text, Color:this.AmountColor});
+                }
+
+                if (IFrameSplitOperator.IsNumber(aryAmount[1]) && this.CallAuctionShowTitle.has("MTitle-AC-NotMatchAmount")) //未匹配量金额
+                {
+                    var text=g_JSChartLocalization.GetText('MTitle-AC-NotMatchAmount',this.LanguageID)+IFrameSplitOperator.FromatIntegerString(aryAmount[1],2);
+                    aryText.push({Text:text, Color:this.AmountColor});
+                }
+            }
+        }
+
+        return { AryText:aryText };
     }
 
     this.DrawCallAuction=function() //集合竞价标题
     {
         var isHScreen=this.Frame.IsHScreen===true;
         var border=this.Frame.GetBorder();
-
+        var pixelRatio=GetDevicePixelRatio();
         var left=border.Left;
         var bottom=border.Top-this.Frame.ChartBorder.Top/2;
-        var defaultfloatPrecision=GetfloatPrecision(this.Symbol);//价格小数位数
         var bDraw=true;
         if (isHScreen) 
         {
+            if (this.Frame.ChartBorder.Right<5*pixelRatio) return;
             var left=2;
             var bottom=this.Frame.ChartBorder.Right/2;    //上下居中显示
             var xText=border.ChartWidth;
@@ -45197,7 +46857,7 @@ function DynamicMinuteTitlePainting()
         if (this.TitleBaseLine==0)  //上
         {
             this.Canvas.textBaseline="top";
-            bottom=2*GetDevicePixelRatio();
+            bottom=2*pixelRatio;
         }
         else if (this.TitleBaseLine==2) //下
         {
@@ -45210,10 +46870,27 @@ function DynamicMinuteTitlePainting()
         }
 
         var position = { Left: left, Bottom: bottom, IsHScreen: isHScreen };
+        var auctionData=this.GetCurrentAuctionData();
+        var titleData=this.FormatCallAuctionTitle(auctionData);
+
+        if (bDraw && titleData && IFrameSplitOperator.IsNonEmptyArray(titleData.AryText))
+        {
+            for(var i=0;i<titleData.AryText.length;++i)
+            {
+                var item=titleData.AryText[i];
+                if (!this.DrawText(item.Text,item.Color,position)) break;
+            }
+        }
+
+        this.OnDrawCallAuctionEventCallback(auctionData);
+
+/*
         if(bDraw && this.IsShowName)
         {
             if (!this.DrawText(this.Name,this.NameColor,position)) return;
         }
+
+       
 
         var strTime;
         var dataVersion=1;
@@ -45398,8 +47075,10 @@ function DynamicMinuteTitlePainting()
                 }
             }
         }
+        
 
         this.OnDrawCallAuctionEventCallback(callbackData);
+        */
     }
 
     this.OnDrawCallAuctionEventCallback=function(drawData)
@@ -45530,7 +47209,7 @@ function DynamicMinuteTitlePainting()
 
         var left=border.Left;
         var bottom=border.Top-this.Frame.ChartBorder.Top/2;
-        var defaultfloatPrecision=GetfloatPrecision(this.Symbol);//价格小数位数
+        //var defaultfloatPrecision=GetfloatPrecision(this.Symbol);//价格小数位数
         var bDraw=true;
         if (isHScreen) 
         {
@@ -45565,6 +47244,18 @@ function DynamicMinuteTitlePainting()
         }
 
         var position = { Left: left, Bottom: bottom, IsHScreen: isHScreen };
+        var titleData=this.FormatCallAuctionTitle(callAuctionItem);
+
+        if (bDraw && titleData && IFrameSplitOperator.IsNonEmptyArray(titleData.AryText))
+        {
+            for(var i=0;i<titleData.AryText.length;++i)
+            {
+                var item=titleData.AryText[i];
+                if (!this.DrawText(item.Text,item.Color,position)) break;
+            }
+        }
+
+        /*
         if(bDraw && this.IsShowName)
         {
             if (!this.DrawText(this.Name,this.NameColor,position)) return;
@@ -45647,6 +47338,7 @@ function DynamicMinuteTitlePainting()
                 }
             }
         }
+        */
     }
 
     this.DrawLastDataItem=function()
@@ -45716,8 +47408,11 @@ function DynamicChartTitlePainting()
     this.IsDrawTitleBG=false;    //是否绘制指标名字背景色
     this.BGColor=g_JSChartResource.IndexTitleBGColor;
     this.BGBorderColor=g_JSChartResource.IndexTitleBorderColor;
+    this.BGBorderMoveOnColor=g_JSChartResource.IndexTitleBorderMoveOnColor;
+    this.BorderRoundRadius=2;   //圆角矩形角度
+
     this.OnDrawEvent;
-    this.ParamSpace=2;           //参数显示的间距
+    this.ParamSpace=2;              //参数显示的间距
     this.TitleSpace=2;              //指标名字和参数之间的间距
     this.TitleColor=g_JSChartResource.IndexTitleColor;   //指标名字颜色
     this.SelectedColor=g_JSChartResource.IndexTitleSelectedColor;
@@ -45728,6 +47423,8 @@ function DynamicChartTitlePainting()
     this.ArgumentsText;         //参数信息
 
     this.MerginLeft=g_JSChartResource.IndexTitleMerginLeft;          //标题输出左边间距
+
+    this.Buttons=[];  //按钮
     
 
     //动态标题
@@ -46113,8 +47810,9 @@ function DynamicChartTitlePainting()
         return this.SelectedChart.Selected.Identify==id;
     }
 
-    this.Draw=function()
+    this.Draw=function(moveonPoint, mouseStatus)
     {
+        this.Buttons=[];
         if (this.Frame.IsMinSize) return;
 
         this.IsKLineFrame= this.Frame.ClassName=='KLineFrame' || this.Frame.ClassName=='KLineHScreenFrame';
@@ -46158,6 +47856,10 @@ function DynamicChartTitlePainting()
         var bottom=this.Frame.ChartBorder.GetTop()+this.Frame.ChartBorder.TitleHeight/2;    //上下居中显示
         var right=this.Frame.ChartBorder.GetRight();
 
+        var toolbarInfo={ Width:0, YCenter:bottom };
+        this.DrawToolbar(toolbarInfo,moveonPoint, mouseStatus);
+        left+=toolbarInfo.Width;
+
         this.Canvas.textAlign="left";
         this.Canvas.textBaseline="middle";
         this.Canvas.font=this.Font;
@@ -46166,35 +47868,16 @@ function DynamicChartTitlePainting()
         {
             if (this.IsDrawTitleBG)
             {
-                var title=this.Title;
-                if (this.IsShowNameArrow) title+='▼';
-                var textWidth=this.Canvas.measureText(title).width;
-                var bgHeight=this.Canvas.measureText("擎").width+4*pixelRatio;
-                var bgWidth=textWidth+4*pixelRatio;
-                this.Canvas.fillStyle=this.BGColor;
-                this.TitleRect=
-                {
-                    Left:left, 
-                    Top:bottom-bgHeight/2-1,
-                    Width:bgWidth, 
-                    Height:bgHeight
-                };    //保存下标题的坐标
+                var rtButton={ Left:left, YCenter:bottom, Width:0 };
+                this.DrawNameButton(rtButton, moveonPoint, mouseStatus);
 
-                this.Canvas.fillRect(this.TitleRect.Left,this.TitleRect.Top,this.TitleRect.Width,this.TitleRect.Height);
-
-                if (this.BGBorderColor)
-                {
-                    this.Canvas.strokeStyle=this.BGBorderColor;
-                    this.Canvas.strokeRect(ToFixedPoint(this.TitleRect.Left),ToFixedPoint(this.TitleRect.Top),ToFixedRect(this.TitleRect.Width),ToFixedRect(this.TitleRect.Height));
-                }
-
-                this.Canvas.fillStyle=this.TitleColor;
-                this.Canvas.fillText(title,left+2*pixelRatio,bottom,textWidth);
+                this.Buttons.push({ ID:JSCHART_BUTTON_ID.INDEX_NAME_BUTTON, Rect:rtButton, FrameID:this.Frame.Identify, Type:2 });  //Type 0=主图按钮 1=附图按钮 2=主图指标名字按钮
 
                 if (this.IsSelectedChart(this.Identify)) 
                     this.DrawSelectedLine(left, bottom, textWidth);
 
-                left+=bgWidth+2*pixelRatio;
+                this.TitleRect=rtButton;
+                left+=rtButton.Width+3*pixelRatio;
                 left+=this.TitleSpace;
             }
             else
@@ -46325,7 +48008,7 @@ function DynamicChartTitlePainting()
         if (this.OverlayIndexType.Position==1) 
         {
             if (!this.Frame.ChartBorder.IsShowTitleOnly)
-                this.DrawOverlayIndexSingleLine();
+                this.DrawOverlayIndexSingleLine(moveonPoint, mouseStatus);
         }
         else 
         {
@@ -46498,7 +48181,7 @@ function DynamicChartTitlePainting()
         this.Canvas.restore();
     }
 
-    this.DrawOverlayIndexSingleLine=function()   //叠加指标1个指标一行
+    this.DrawOverlayIndexSingleLine=function(moveonPoint, mouseStatus)   //叠加指标1个指标一行
     {
         var pixelRatio=GetDevicePixelRatio();
         var border=this.Frame.GetBorder();
@@ -46520,15 +48203,21 @@ function DynamicChartTitlePainting()
 
         var lineSpace=this.OverlayIndexType.LineSpace*pixelRatio; 
         var x=left, y=top;
-        this.Canvas.textAlign="left";
-        this.Canvas.textBaseline="middle";
         var fontHeight=GetFontHeight(this.Canvas,this.Font,"擎");
         y=top+fontHeight/2;
         for(item of this.OverlayIndex)
         {
             var overlayItem=item[1];
             var overlayID=item[0];
-            x=left;
+            var toolbarInfo={ Width:0, YCenter:y, ID:overlayID };
+            this.DrawOverlayToolbar(overlayItem,toolbarInfo,moveonPoint, mouseStatus);
+
+            if (!overlayItem.Frame.IsShowIndexTitle) continue;
+
+            x=left+toolbarInfo.Width;
+            this.Canvas.font=this.Font;
+            this.Canvas.textAlign="left";
+            this.Canvas.textBaseline="middle";
             if (overlayItem.Title && this.IsShowOverlayIndexName)
             {
                 var textWidth=this.Canvas.measureText(overlayItem.Title).width+2;
@@ -46894,6 +48583,184 @@ function DynamicChartTitlePainting()
     {
         return GetFontHeight(this.Canvas, font, "擎");
     }
+
+    //指标名字按钮
+    this.DrawNameButton=function(rtButton, moveonPoint, mouseStatus)
+    {
+        var pixelRatio=GetDevicePixelRatio();
+        var title=this.Title;
+        if (this.IsShowNameArrow) title+='▼';
+        var textWidth=this.Canvas.measureText(title).width;
+        var bgHeight=this.Canvas.measureText("擎").width+4*pixelRatio;
+        var roundRadius=this.BorderRoundRadius*pixelRatio;
+        var bgWidth=textWidth+4*pixelRatio+roundRadius*2;
+       
+
+        rtButton.Top=rtButton.YCenter-bgHeight/2-1,
+        rtButton.Width=bgWidth;
+        rtButton.Height=bgHeight;
+        rtButton.Right=rtButton.Left+rtButton.Width;
+        rtButton.Bottom=rtButton.Top+rtButton.Height;
+
+        var borderColor=this.BGBorderColor;
+        if (moveonPoint && (moveonPoint.X>=rtButton.Left && moveonPoint.X<rtButton.Right && moveonPoint.Y>=rtButton.Top && moveonPoint.Y<=rtButton.Bottom))
+        {
+            if (this.BGBorderMoveOnColor) borderColor=this.BGBorderMoveOnColor;
+            if (mouseStatus)
+            {
+                var btnItem={ ID:JSCHART_BUTTON_ID.INDEX_NAME_BUTTON };
+                mouseStatus.MouseOnToolbar={  ID:"IndexNameButton", Rect:rtButton, Item:btnItem, Frame:this.Frame, Point:{X:moveonPoint.X, Y:moveonPoint.Y} };
+            }
+        }
+
+        this.Canvas.beginPath();
+        this.Canvas.roundRect( ToFixedPoint(rtButton.Left), ToFixedPoint(rtButton.Top), ToFixedRect(rtButton.Width), ToFixedRect(rtButton.Height), [roundRadius]);
+        this.Canvas.closePath();
+
+        this.Canvas.fillStyle=this.BGColor;
+        this.Canvas.fill();
+
+        if (borderColor)
+        {
+            this.Canvas.strokeStyle=borderColor;
+            this.Canvas.stroke();
+        }
+       
+        this.Canvas.fillStyle=this.TitleColor;
+        this.Canvas.fillText(title,rtButton.Left+roundRadius+2*pixelRatio,rtButton.YCenter,textWidth);
+    }
+
+    //绘制按钮
+    this.DrawButton=function(item, rtButton, moveonPoint, mouseStatus)
+    {
+        var size=item.Style.Size;
+        if (IFrameSplitOperator.IsNumber(item.Style.YMoveOffset)) rtButton.YCenter+=item.Style.YMoveOffset;
+
+        var font=`${size}px ${item.Style.Family}`;
+
+        rtButton.Top=rtButton.YCenter-size/2;
+        rtButton.Width=size+item.Style.MerginLeft;
+        rtButton.Height=size;
+        rtButton.Bottom=rtButton.Top+rtButton.Height;
+        rtButton.Right=rtButton.Left+rtButton.Width;
+
+        var color=item.Style.Color;
+        if (moveonPoint && (moveonPoint.X>=rtButton.Left && moveonPoint.X<rtButton.Right && moveonPoint.Y>=rtButton.Top && moveonPoint.Y<=rtButton.Bottom))
+        {
+            color=item.Style.MoveOnColor;
+            if (mouseStatus)
+                mouseStatus.MouseOnToolbar={  ID:"TitleButton", Rect:rtButton, Item:item, Frame:this.Frame, Point:{X:moveonPoint.X, Y:moveonPoint.Y} };
+        }
+
+        this.Canvas.fillStyle=color;
+        this.Canvas.font=font;
+        this.Canvas.textAlign="left";
+        this.Canvas.textBaseline="middle";
+        this.Canvas.fillText(item.Style.Text, rtButton.Left, rtButton.YCenter);
+
+        return true;
+    }
+
+    this.DrawToolbar=function(toolbarInfo, moveonPoint, mouseStatus)
+    {
+        toolbarInfo.Width=0;
+        if (!this.Frame || !this.Frame.GetLeftToolbar) return;
+
+        var aryButton=this.Frame.GetLeftToolbar();
+        if (!IFrameSplitOperator.IsNonEmptyArray(aryButton)) return;
+
+        if (this.Frame.IsHScreen===true)
+        {
+
+
+        }
+        else
+        {
+            var border=this.Frame.GetBorder();
+            var right=border.Right-3;
+            var left=border.Left+3;
+            var yCenter=toolbarInfo.YCenter;
+
+            for(var i=0;i<aryButton.length;++i)
+            {
+                var item=aryButton[i];
+                var rtButton={ Left:left, YCenter:yCenter };
+                this.DrawButton(item, rtButton, moveonPoint, mouseStatus);
+                
+                this.Buttons.push({ ID:item.ID, Rect:rtButton, FrameID:this.Frame.Identify, Type:0 });  //Type 0=主图按钮 1=附图按钮 2=主图指标名字按钮
+
+                left=rtButton.Right;
+
+                toolbarInfo.Width+=rtButton.Width;
+            }
+
+            if (toolbarInfo.Width>0) toolbarInfo.Width+=3;
+        }
+    }
+
+    this.DrawOverlayToolbar=function(overlayItem, toolbarInfo, moveonPoint, mouseStatus)
+    {
+        toolbarInfo.Width=0;
+        if (!overlayItem || !overlayItem.Frame || !overlayItem.Frame.GetLeftToolbar) return;
+
+        var frame=overlayItem.Frame;
+        var aryButton=frame.GetLeftToolbar({ Overlay:overlayItem, OverlayID:toolbarInfo.ID });
+        if (!IFrameSplitOperator.IsNonEmptyArray(aryButton)) return;
+
+        if (this.Frame.IsHScreen===true)
+        {
+
+
+        }
+        else
+        {
+            var border=frame.GetBorder();
+            var right=border.Right-3;
+            var left=border.Left+3;
+            var yCenter=toolbarInfo.YCenter;
+
+            for(var i=0;i<aryButton.length;++i)
+            {
+                var item=aryButton[i];
+
+                var rtButton={ Left:left, YCenter:yCenter };
+                this.DrawButton(item, rtButton, moveonPoint, mouseStatus);
+
+                this.Buttons.push({ ID:item.ID, Rect:rtButton, FrameID:this.Frame.Identify, Type:1, OverlayID:toolbarInfo.ID, Title:overlayItem.Title  });
+
+                left=rtButton.Right;
+
+                toolbarInfo.Width+=rtButton.Width;
+            }
+
+            if (toolbarInfo.Width>0) toolbarInfo.Width+=3;
+        }
+    }
+
+
+    this.PtInButtons=function(x,y)
+    {
+        for(var i=0;i<this.Buttons.length;++i)
+        {
+            var item=this.Buttons[i];
+            if (!item.Rect) continue;
+
+            var rect=item.Rect;
+            if (x>rect.Left && x<rect.Right && y>rect.Top && y<rect.Bottom)
+            {
+                var result= { ID:item.ID, Rect:rect, FrameID:item.FrameID, Type:item.Type };
+                if (item.Type==1)
+                {
+                    result.Title=item.Title;
+                    result.OverlayID=item.OverlayID;
+                }
+
+                return result;
+            }
+        }
+
+        return null;
+    }
 }
 
 //画图工具
@@ -46915,10 +48782,12 @@ function IChartDrawPicture()
     this.Period;        //对应的周期
     this.Right;         //对应的复权
     this.IsSelected=false;  //是否选中
-    this.Option;
+    this.Option;        //全局配置 对应外部 ChartDrawOption
     this.EnableMove=true;   //是否可以移动
     this.EnableSave=true;   //是否允许保存
     this.EnableCtrlMove=false;  //是否按住Ctrl才能移动
+    this.OnlyMoveXIndex=false;  //只能在X轴刻度上移动
+    this.IsSupportMagnet=false; //是否支持磁吸
 
     this.IsDrawFirst=false;
     this.IsShowYCoordinate=false;    //是否在Y轴显示点的刻度
@@ -46986,6 +48855,40 @@ function IChartDrawPicture()
         {
             this.Canvas.lineWidth=this.BackupLineWidth;
         }
+    }
+
+    //磁吸K线
+    this.PointMagnetKLine=function()
+    {
+        if (!this.IsSupportMagnet) return false;
+        if (!this.Frame) return false;
+        if (this.Frame.ClassName=="MinuteFrame" || this.Frame.Class=="MinuteHScreenFrame") return false;
+        if (this.Frame.Identify!=0) return false;
+
+        var pointIndex=-1;
+        if (this.Status==2) pointIndex=1;
+        else if (this.Status==1) pointIndex=0;
+        else if (IFrameSplitOperator.IsNumber(this.MovePointIndex)) pointIndex=this.MovePointIndex;
+        if (pointIndex<0) return false;
+
+        if (this.Option && this.Option.Magnet && this.Option.Magnet.Enable)
+        {
+            var option= 
+            { 
+                IsFixedX:false, 
+                Magnet:
+                {
+                    Enable:true,
+                    PointIndex:pointIndex,
+                    Distance:this.Option.Magnet.Distance,
+                    Type:this.Option.Magnet.Type
+                }
+            }
+
+            return this.AdjustPoint(this.Point,option)
+        }
+          
+        return false;
     }
 
     //Point => Value
@@ -47271,7 +49174,7 @@ function IChartDrawPicture()
         if (this.Status<2) return null;
         if(!this.Point.length || !this.Frame) return null;
 
-        var drawPoint=new Array();
+        var drawPoint=[];
         if (this.Status==10)
         {
             var data=this.Frame.Data;
@@ -47305,12 +49208,119 @@ function IChartDrawPicture()
                 if (invaildX==this.Value.length) return null;
             }
         }
-        else
+        else    //移动中
         {
-            drawPoint=this.Point;
+            for(var i=0;i<this.Point.length;++i)
+            {
+                var item=this.Point[i];
+                drawPoint.push({ X:item.X, Y:item.Y });
+            }
+
+            if (this.OnlyMoveXIndex)
+            {
+                var option= { IsFixedX:this.OnlyMoveXIndex };
+                JSConsole.Chart.Log(`[IChartDrawPicture::CalculateDrawPoint] Status=${this.Status} MovePointIndex=${this.MovePointIndex} Identify=${this.Frame.Identify}`);
+
+                //磁吸功能
+                if (this.Option && this.Option.Magnet && this.Option.Magnet.Enable && this.IsSupportMagnet  && this.Frame.Identify==0)
+                {
+                    var pointIndex=-1;
+                    if (this.Status==2) pointIndex=1;   //创建第2个点
+                    if (IFrameSplitOperator.IsNumber(this.MovePointIndex)) pointIndex=this.MovePointIndex;
+                        
+                    if (pointIndex>=0)
+                    {
+                        option.Magnet=
+                        {
+                            Enable:true,
+                            PointIndex:pointIndex,
+                            Distance:this.Option.Magnet.Distance,
+                            Type:this.Option.Magnet.Type
+                        }
+                    }
+                }
+                
+                this.AdjustPoint(drawPoint,option)
+            }
         }
 
         return drawPoint;
+    }
+
+    //修正X, Y轴坐标
+    this.AdjustPoint=function(aryPoint, option)
+    {
+        if (!this.Frame) return false;
+
+        if (this.Frame.ClassName=="MinuteFrame" || this.Frame.Class=="MinuteHScreenFrame")
+            return false;
+        
+
+        return this.AdjustPoint_KLine(aryPoint, option);
+    }
+
+    this.AdjustPoint_KLine=function(aryPoint, option)
+    {
+        if (!option) return false;
+        if (!this.Frame) return false;
+        var data=this.Frame.Data;
+        if (!data) return false;
+        
+        var isHScreen=this.Frame.IsHScreen;
+        if (isHScreen)
+        {
+            for(var i=0; i<aryPoint.length; ++i)
+            {
+                var item=aryPoint[i];
+                var xValue=parseInt(this.Frame.GetXData(item.Y))+data.DataOffset;
+            }
+        }
+        else
+        {
+            for(var i=0; i<aryPoint.length; ++i)
+            {
+                var item=aryPoint[i];
+                var index=parseInt(this.Frame.GetXData(item.X,false));
+                var xValue=index+data.DataOffset;
+                if (xValue<0) xValue=0;
+                else if (xValue>=data.Data.length) xValue=data.Data.length-1;
+
+                if (option.IsFixedX)
+                {
+                    index=xValue-data.DataOffset;
+                    item.X=this.Frame.GetXFromIndex(index,false);
+                }
+
+                //磁吸
+                if (option.Magnet && option.Magnet.Enable && i==option.Magnet.PointIndex)
+                {
+                    var kline=data.Data[xValue];
+                    var aryKValue=[kline.Open, kline.High, kline.Low, kline.Close];
+                    var yMinDistance=null, yKLine=null;
+                    for(var j=0; j<aryKValue.length; ++j)
+                    {
+                        var yPrice=this.Frame.GetYFromData(aryKValue[j]);
+                        var value=Math.abs(item.Y-yPrice);
+                        if (!IFrameSplitOperator.IsNumber(yMinDistance) || yMinDistance>value) 
+                        {
+                            yMinDistance=value;
+                            yKLine=yPrice;
+                        }
+                    }
+
+                    if (option.Magnet.Type==1)  //只能在K线上
+                    {
+                        if (IFrameSplitOperator.IsNumber(yKLine)) 
+                            item.Y=yKLine;
+                    }
+                    else
+                    {
+                        if (yMinDistance<option.Magnet.Distance && IFrameSplitOperator.IsNumber(yKLine))
+                            item.Y=yKLine;
+                    }
+                }
+            }
+        }
     }
 
     this.IsYValueInFrame=function(yValue)
@@ -47430,6 +49440,8 @@ function IChartDrawPicture()
     {
         var left=this.Frame.ChartBorder.GetLeft();
         var right=this.Frame.ChartBorder.GetRight();
+        var bottom=this.Frame.ChartBorder.GetBottomEx();
+        var top=this.Frame.ChartBorder.GetTopEx();
 
         var a=aryPoint[1].X-aryPoint[0].X;
         var b=aryPoint[1].Y-aryPoint[0].Y;
@@ -47440,10 +49452,36 @@ function IChartDrawPicture()
             var b1=a1*b/a;
             var y=b1+aryPoint[0].Y;
 
-            var pt=new Point();
-            pt.X=right;
-            pt.Y=y;
-            return pt;
+            if (y>=top && y<=bottom)
+            {
+                var pt=new Point();
+                pt.X=right;
+                pt.Y=y;
+                return pt;
+            }
+
+            if (b>0)
+            {
+                var b2=bottom-aryPoint[0].Y;
+                var a2=a*b2/b;
+                var x=a2+aryPoint[0].X;
+    
+                var pt2=new Point();
+                pt2.X=x;
+                pt2.Y=bottom;
+                return pt2;
+            }
+            else
+            {
+                var b2=top-aryPoint[0].Y;
+                var a2=a*b2/b;
+                var x=a2+aryPoint[0].X;
+
+                var pt2=new Point();
+                pt2.X=x;
+                pt2.Y=top;
+                return pt2;
+            }
         }
         else
         {
@@ -47451,10 +49489,36 @@ function IChartDrawPicture()
             var b1=a1*b/Math.abs(a);
             var y=b1+aryPoint[0].Y;
 
-            var pt=new Point();
-            pt.X=left;
-            pt.Y=y;
-            return pt;
+            if (y>=top && y<=bottom)
+            {
+                var pt=new Point();
+                pt.X=left;
+                pt.Y=y;
+                return pt;
+            }
+
+            if (b>0)
+            {
+                var b2=bottom-aryPoint[0].Y;
+                var a2=a*b2/b;
+                var x=a2+aryPoint[0].X;
+    
+                var pt2=new Point();
+                pt2.X=x;
+                pt2.Y=bottom;
+                return pt2;
+            }
+            else
+            {
+                var b2=top-aryPoint[0].Y;
+                var a2=a*b2/b;
+                var x=a2+aryPoint[0].X;
+
+                var pt2=new Point();
+                pt2.X=x;
+                pt2.Y=top;
+                return pt2;
+            }
         }
     }
 
@@ -47613,7 +49677,11 @@ function IChartDrawPicture()
 
         if (this.AreaColor) data.AreaColor=this.AreaColor;
         if (this.Text) data.Text=this.Text;  //如果有文本, 也导出
-        if (this.FontOption) data.FontOption=this.FontOption;    //字体也导出
+        if (this.FontOption) 
+        {
+            data.FontOption={};
+            this.SetFont(data.FontOption, this.FontOption); //字体也导出
+        }
 
         return data;
     }
@@ -47730,6 +49798,121 @@ function IChartDrawPicture()
         return data;
     }
 
+    this.SetFont=function(destFont, srcFont)
+    {
+        if (!srcFont) return;
+        if (!destFont) return;
+       
+        if (srcFont.Family) destFont.Family=srcFont.Family;
+        if (srcFont.Weight) destFont.Weight=srcFont.Weight;
+        if (srcFont.Style) destFont.Style=srcFont.Style;
+        if (IFrameSplitOperator.IsNumber(srcFont.Size)) destFont.Size=srcFont.Size;
+    }
+
+    this.GetFontString=function(fontOption)
+    {
+        const defaultFont=16*GetDevicePixelRatio() +"px 微软雅黑";
+        if (!fontOption || !fontOption.Family || !IFrameSplitOperator.IsPlusNumber(fontOption.Size)) return defaultFont;
+
+        var font='';
+        if (fontOption.Color) font+=fontOption.Color+' ';
+        if (fontOption.Style) font+=fontOption.Style+' ';
+        if (fontOption.Weight) font+=fontOption.Weight+' ';
+
+        font+=fontOption.Size*GetDevicePixelRatio()+'px ';
+        font+=fontOption.Family;
+
+        return font;
+    }
+
+    //获得多行文本
+    this.GetMultiLineText=function(text, maxWidth, font , option)
+    {
+        if (font) this.Canvas.font=font;
+        
+        var textWidth=this.Canvas.measureText(text).width;
+        if (textWidth<=maxWidth) return { AryText:[{Text:text }] };
+
+        var singleWidth=this.Canvas.measureText("擎").width;
+        var estimateCount=parseInt(maxWidth/singleWidth);    //预估个数
+        var endPos=0;
+
+        var aryText=[];
+        while(endPos<text.length-1)
+        {
+            var count=estimateCount;
+            var pos=endPos+count;
+            if (pos>=text.length) 
+            {
+                pos=text.length-1;
+                count=pos-endPos;
+            }
+
+            var subText=text.slice(endPos,endPos+count);
+            var textWidth=this.Canvas.measureText(subText).width;
+            if (textWidth>maxWidth)
+            {
+                for(var i=count; i>=0 ;--i)
+                {
+                    subText=text.slice(endPos, endPos+i);
+                    textWidth=this.Canvas.measureText(subText).width;
+                    if (textWidth<maxWidth)
+                    {
+                        aryText.push({Text:subText});
+                        endPos+=i;
+                        break;
+                    }
+                }
+            }
+            else if (textWidth<maxWidth)
+            {
+                var bFind=false;
+                for(var i=count;(i+endPos)<=text.length;++i)
+                {
+                    subText=text.slice(endPos, endPos+i);
+                    textWidth=this.Canvas.measureText(subText).width;
+                    if (textWidth>maxWidth)
+                    {
+                        subText=text.slice(endPos, endPos+i-1);
+                        aryText.push({Text:subText});
+                        endPos+=i-1;
+                        bFind=true;
+                        break;
+                    }
+                }
+
+                if (!bFind) 
+                {
+                    aryText.push({Text:subText});
+                    endPos=text.length-1;
+                }
+            }
+            else
+            {
+                aryText.push({Text:subText});
+                endPos+=count;
+            }
+        }
+
+        return { AryText:aryText };
+    }
+
+    this.CloneArrayText=function(aryText)
+    {
+        if (!IFrameSplitOperator.IsNonEmptyArray(aryText)) return [];
+
+        var aryValue=[];
+        for(var i=0;i<aryText.length;++i)
+        {
+            var item=aryText[i];
+            if (!item) continue;
+
+            aryValue.push({ Text:item.Text });
+        }
+
+        return aryValue;
+    }
+
     //复制
     //this.CopyData=function() { }
     //this.PtInButtons=function(x, y) { }
@@ -47826,8 +50009,14 @@ IChartDrawPicture.ArrayDrawPricture=
     { Name:"DisjointChannel", ClassName:"ChartDrawDisjontChannel", Create:function() { return new ChartDrawDisjontChannel();}},
     { Name:"FlatTop", ClassName:"ChartDrawDisjontChannel", Create:function() { return new ChartDrawFlatTop();}},
 
-    { Name:"水平线2", ClassName:"ChartDrawHLine", Create:function() { return new ChartDrawHLine(); }}
-    
+    { Name:"水平线2", ClassName:"ChartDrawHLine", Create:function() { return new ChartDrawHLine(); }},
+
+
+    //trading view样式
+    { Name:"Note", ClassName:"ChartDrawNote", Create:function() { return new ChartDrawNote(); } },
+    { Name:"AnchoredText", ClassName:"ChartDrawAnchoredText", Create:function() { return new ChartDrawAnchoredText();} },
+    { Name:"PriceLabel", ClassName:"ChartDrawPriceLabel", Create:function() { return new ChartDrawPriceLabel();} },
+    { Name:"PriceNote", ClassName:"ChartDrawPriceNote", Create:function() { return new ChartDrawPriceNote();} }
 ];
 
 IChartDrawPicture.MapIonFont=new Map(
@@ -47915,9 +50104,6 @@ IChartDrawPicture.CreateChartDrawPicture=function(obj)    //创建画图工具
 
 
 
-
-
-
 //画图工具-线段
 function ChartDrawPictureLine()
 {
@@ -47930,6 +50116,8 @@ function ChartDrawPictureLine()
     this.GetXYCoordinate=this.GetXYCoordinate_default;
     this.IsShowYCoordinate=false;
     this.CopyData=this.CopyData_default;
+    this.OnlyMoveXIndex=true;
+    this.IsSupportMagnet=true;
 
     this.Draw=function()
     {
@@ -48181,6 +50369,8 @@ function ChartDrawArrowLine()
     this.ArrawLength=15;        //三角斜边长度
     this.ArrawAngle=35;         //三角斜边一直线夹角
     this.GetXYCoordinate=this.GetXYCoordinate_default;
+    this.OnlyMoveXIndex=true;
+    this.IsSupportMagnet=true;
 
     this.Draw=function()
     {
@@ -48257,15 +50447,55 @@ function ChartDrawPictureHaflLine()
     delete this.newMethod;
 
     this.ClassName='ChartDrawPictureHaflLine';
-    this.IsPointIn=this.IsPointIn_XYValue_Line;
     this.GetXYCoordinate=this.GetXYCoordinate_default;
+    this.OnlyMoveXIndex=true;
+    this.IsSupportMagnet=true;
+    
+    this.FullLine;
+
+
+    this.IsPointIn=function(x, y, option)
+    {
+        var result=this.IsPointIn_XYValue_Line(x,y,option);
+        if (result>=0) return result;
+
+        if (!this.FullLine) return result;
+
+        var ptStart=this.FullLine.Start;
+        var ptEnd=this.FullLine.End;
+        var pixel=GetDevicePixelRatio();
+        var lineWidth=5*pixel;
+
+        this.Canvas.beginPath();
+        if (ptStart.X==ptEnd.X) //竖线
+        {
+            this.Canvas.moveTo(ptStart.X-lineWidth,ptStart.Y);
+            this.Canvas.lineTo(ptStart.X+lineWidth,ptStart.Y);
+            this.Canvas.lineTo(ptEnd.X+lineWidth,ptEnd.Y);
+            this.Canvas.lineTo(ptEnd.X-lineWidth,ptEnd.Y);
+        }
+        else
+        {
+            this.Canvas.moveTo(ptStart.X,ptStart.Y+lineWidth);
+            this.Canvas.lineTo(ptStart.X,ptStart.Y-lineWidth);
+            this.Canvas.lineTo(ptEnd.X,ptEnd.Y-lineWidth);
+            this.Canvas.lineTo(ptEnd.X,ptEnd.Y+lineWidth);
+        }
+        this.Canvas.closePath();
+
+        if (this.Canvas.isPointInPath(x,y))
+            return 100;
+
+        return result;
+    }
 
     this.Draw=function()
     {
         this.LinePoint=[];
+        this.FullLine=null;
         if (this.IsFrameMinSize()) return;
 
-        var drawPoint=this.CalculateDrawPoint({IsCheckX:true, IsCheckY:true});
+        var drawPoint=this.CalculateDrawPoint({IsCheckX:false, IsCheckY:false});
         if (!drawPoint || drawPoint.length!=2) return;
 
         var ptStart=drawPoint[0];
@@ -48287,6 +50517,8 @@ function ChartDrawPictureHaflLine()
 
         this.DrawPoint(drawPoint);  //画点
         this.Canvas.restore();
+
+        this.FullLine={Start:drawPoint[0], End:endPoint};
     }
 }
 
@@ -48939,13 +51171,15 @@ function ChartDrawPictureTrendLine()
     this.ClassName='ChartDrawPictureTrendLine';
     this.IsPointIn=this.IsPointIn_XYValue_Line;
     this.GetXYCoordinate=this.GetXYCoordinate_default;
+    this.OnlyMoveXIndex=true;
+    this.IsSupportMagnet=true;
 
     this.Draw=function()
     {
         this.LinePoint=[];
         if (this.IsFrameMinSize()) return;
 
-        var drawPoint=this.CalculateDrawPoint({IsCheckX:true, IsCheckY:true});
+        var drawPoint=this.CalculateDrawPoint({IsCheckX:false, IsCheckY:false});
         if (!drawPoint || drawPoint.length!=2) return;
 
         var ptStart=drawPoint[0];
@@ -53516,6 +55750,1303 @@ function ChartDrawVolProfile()
     
 }
 
+//画图工具 tradingview
+
+function ChartDrawNote()
+{
+    this.newMethod=IChartDrawPicture;   //派生
+    this.newMethod();
+    delete this.newMethod;
+
+    this.ClassName='ChartDrawNote';
+    this.PointCount=1;
+
+    //矢量图片
+    this.Text=g_JSChartResource.ChartDrawNote.Text;
+    this.FontOption={ Family:g_JSChartResource.ChartDrawNote.FontOption.Family, Size:g_JSChartResource.ChartDrawNote.FontOption.Size };    //Weight(bold 粗体), Style(italic)
+    
+    this.AryNoteText=[ {Text:"输入内容 ......"}];
+    /*
+    this.AryNoteText=
+    [ 
+        {Text:"  北京时间6月5日，U20世界杯1/4决赛全部结束，韩国创造历史，将在半决赛对阵意大利，另一场半决赛则是以色列对阵乌拉圭", } , 
+        {Text:"", }, 
+        {Text:"  韩国是上届U20世界杯亚军，今年他们经过加时赛1-0力克淘汰阿根廷的尼日利亚，历史上第三次进入四强，亚洲球队最多，也是第一支连续两届晋级四强的球队。", }
+    ];
+    */
+
+    this.NoteFontOption=
+    {
+        Family:g_JSChartResource.ChartDrawNote.NoteFontOption.Family,
+        Size:g_JSChartResource.ChartDrawNote.NoteFontOption.Size,
+        Weight:g_JSChartResource.ChartDrawNote.NoteFontOption.Weight,
+        Style:g_JSChartResource.ChartDrawNote.NoteFontOption.Style
+    }
+
+    this.NoteWidth=g_JSChartResource.ChartDrawNote.NoteWidth;
+    this.NoteMargin=
+    { 
+        Left:g_JSChartResource.ChartDrawNote.NoteMargin.Left, 
+        Top:g_JSChartResource.ChartDrawNote.NoteMargin.Top, 
+        Bottom:g_JSChartResource.ChartDrawNote.NoteMargin.Bottom, 
+        Right:g_JSChartResource.ChartDrawNote.NoteMargin.Right
+    };
+    this.NoteBGColor=g_JSChartResource.ChartDrawNote.NoteBGColor;
+    this.NoteTextColor=g_JSChartResource.ChartDrawNote.NoteTextColor;
+    this.NoteBorderColor=g_JSChartResource.ChartDrawNote.NoteBorderColor;
+    this.LineSpace=g_JSChartResource.ChartDrawNote.LineSpace; //行间距
+    this.ArrowSize=g_JSChartResource.ChartDrawNote.ArrowSize;
+
+    this.OnlyMoveXIndex=true;
+    this.IsSupportMagnet=false;
+
+    //内部变量
+    this.PtButtom;
+    this.PtTop;
+    this.TextRect=null;         //文字区域
+    this.PtCenter;
+    
+
+    this.SetOption_Backup=this.SetOption;
+    this.SetOption=function(option)
+    {
+        this.SetOption_Backup(option);
+
+        if (!option) return;
+
+        if (option.Text) this.Text=option.Text;
+        if (option.FontOption) this.SetFont(this.FontOption, option.FontOption);
+        if (option.NoteFontOption) this.SetFont(this.NoteFontOption, option.NoteFontOption);
+
+        if (IFrameSplitOperator.IsNumber(option.NoteWidth)) this.NoteWidth=option.NoteWidth;
+        if (option.NoteMargin)
+        {
+            var item=option.NoteMargin;
+            if (IFrameSplitOperator.IsNumber(item.Left)) this.NoteMargin.Left=item.Left;
+            if (IFrameSplitOperator.IsNumber(item.Top)) this.NoteMargin.Top=item.Top;
+            if (IFrameSplitOperator.IsNumber(item.Bottom)) this.NoteMargin.Bottom=item.Bottom;
+            if (IFrameSplitOperator.IsNumber(item.Right)) this.NoteMargin.Right=item.Right;
+        }
+
+        if (option.NoteBGColor) this.NoteBGColor=option.NoteBGColor;
+        if (option.NoteTextColor) this.NoteTextColor=option.NoteTextColor;
+        if (option.NoteBorderColor) this.NoteBorderColor=option.NoteBorderColor;
+        if (IFrameSplitOperator.IsNumber(option.LineSpace)) this.LineSpace=option.LineSpace;
+        if (IFrameSplitOperator.IsNumber(option.ArrowSize)) this.ArrowSize=option.ArrowSize;
+
+        if (IFrameSplitOperator.IsNonEmptyArray(option.AryNoteText)) this.AryNoteText=this.CloneArrayText(option.AryNoteText);
+    }
+
+    //导出成存储格式
+    this.ExportStorageData=function()
+    {
+        var storageData=this.ExportBaseData();
+        storageData.Value=[];
+
+        if (this.Value && this.Value[0])
+        {
+            var item=this.Value[0];
+            storageData.Value.push({ XValue:item.XValue, YValue:item.YValue, DateTime:item.DateTime });
+        }
+
+        storageData.NoteFont=this.NoteFont;
+        storageData.NoteWidth=this.NoteWidth;
+        storageData.NoteBGColor=this.NoteBGColor;
+        storageData.NoteTextColor=this.NoteTextColor;
+        storageData.NoteBorderColor=this.NoteBorderColor;
+        storageData.LineSpace=this.LineSpace;
+        storageData.ArrowSize=this.ArrowSize;
+        storageData.NoteMargin={ Left:this.NoteMargin.Left, Top:this.NoteMargin.Right, Bottom:this.NoteMargin.Bottom, Right:this.NoteMargin.Right };
+
+        storageData.AryNoteText=this.CloneArrayText(this.AryNoteText);
+
+        return storageData;
+    }
+
+    this.ImportStorageData=function(storageData)
+    {
+        if (storageData.NoteFont) this.NoteFont=storageData.NoteFont;
+        if (IFrameSplitOperator.IsNumber(storageData.NoteWidth)) this.NoteWidth=storageData.NoteWidth;
+        if (storageData.NoteMargin)
+        {
+            var item=storageData.NoteMargin;
+            if (IFrameSplitOperator.IsNumber(item.Left)) this.NoteMargin.Left=item.Left;
+            if (IFrameSplitOperator.IsNumber(item.Top)) this.NoteMargin.Top=item.Top;
+            if (IFrameSplitOperator.IsNumber(item.Bottom)) this.NoteMargin.Bottom=item.Bottom;
+            if (IFrameSplitOperator.IsNumber(item.Right)) this.NoteMargin.Right=item.Right;
+        }
+
+        if (storageData.NoteBGColor) this.NoteBGColor=storageData.NoteBGColor;
+        if (storageData.NoteTextColor) this.NoteTextColor=storageData.NoteTextColor;
+        this.NoteBorderColor=storageData.NoteBorderColor;
+        if (IFrameSplitOperator.IsNumber(storageData.LineSpace)) this.LineSpace=storageData.LineSpace;
+        if (IFrameSplitOperator.IsNumber(storageData.ArrowSize)) this.ArrowSize=storageData.ArrowSize;
+        
+        this.AryNoteText=this.CloneArrayText(storageData.AryNoteText);
+    }
+
+    this.Draw=function()
+    {
+        this.PtButtom=null;
+        this.PtTop=null;
+        this.TextRect=null;
+        this.PtCenter=null;
+        if (this.IsFrameMinSize()) return;
+
+        var drawPoint=this.CalculateDrawPoint({IsCheckX:true, IsCheckY:true});
+        if (!drawPoint || drawPoint.length!=1) return;
+        var font=this.GetTextFont();
+        if (!font) return;
+
+        this.ClipFrame();
+
+        var isHScreen=this.Frame.IsHScreen;
+        var pixel=GetDevicePixelRatio();
+
+        this.Canvas.fillStyle=this.LineColor;
+        this.Canvas.textAlign="center";
+        this.Canvas.textBaseline="middle";
+        this.Canvas.font=font;
+
+        if (isHScreen)
+        {
+            this.Canvas.translate(drawPoint[0].X, drawPoint[0].Y);
+            this.Canvas.rotate(90 * Math.PI / 180);
+            this.Canvas.fillText(this.Text,0,0);
+
+            this.PtButtom={ X:drawPoint[0].X, Y:drawPoint[0].Y+this.FontOption.Size*pixel/2+2 };
+            this.PtTop={ X:drawPoint[0].X, Y:drawPoint[0].Y-this.FontOption.Size*pixel/2-2};
+            this.PtCenter=drawPoint[0];
+
+            var ptSelected={X:drawPoint[0].X-this.FontOption.Size*pixel/2-2, Y:drawPoint[0].Y};
+        }
+        else
+        {
+            this.Canvas.fillText(this.Text,drawPoint[0].X,drawPoint[0].Y);
+
+            this.PtButtom={ X:drawPoint[0].X, Y:drawPoint[0].Y+this.FontOption.Size*pixel/2+2 };
+            this.PtTop={ X:drawPoint[0].X, Y:drawPoint[0].Y-this.FontOption.Size*pixel/2-2 };
+
+            var ptSelected={X:this.PtButtom.X, Y:this.PtButtom.Y};
+        }
+        
+        var textWidth=this.Canvas.measureText(this.Text).width;
+        this.TextRect={};
+        this.TextRect.Left=drawPoint[0].X-textWidth/2;
+        this.TextRect.Top=drawPoint[0].Y-(this.FontOption.Size*pixel)/2;
+        this.TextRect.Width=textWidth;
+        this.TextRect.Height=this.FontOption.Size*pixel;
+
+        if (this.IsShowNoteText())
+            this.DrawText();
+
+        //this.Canvas.strokeRect(this.TextRect.Left,this.TextRect.Top,this.TextRect.Width,this.TextRect.Height);
+
+        this.Canvas.restore();
+
+        this.DrawPoint([ptSelected]);  //画点
+    }
+
+    this.DrawText=function()
+    {
+        this.Canvas.font=this.GetFontString(this.NoteFontOption);
+        
+        var height=0;
+        var lineHeight=this.Canvas.measureText("擎").width;
+        var border=this.Frame.GetBorder();
+        var pixel=GetDevicePixelRatio();
+        var isHScreen=this.Frame.IsHScreen;
+        var width=this.NoteWidth;
+
+        var aryText=[];
+        if (IFrameSplitOperator.IsNonEmptyArray(this.AryNoteText))
+        {
+            for(var i=0; i<this.AryNoteText.length; ++i)
+            {
+                var item=this.AryNoteText[i];
+                if (!item) continue;
+    
+                if (height>0) height+=this.LineSpace;
+                if (item.Text)
+                {
+                    var value=this.GetMultiLineText(item.Text, width);
+                    if (value && IFrameSplitOperator.IsNonEmptyArray(value.AryText))
+                    {
+                        for(var j=0; j<value.AryText.length; ++j)
+                        {
+                            if (j>0) height+=this.LineSpace;
+                            var textItem=value.AryText[j];
+                            aryText.push(textItem);
+                            height+=lineHeight;
+                        }
+                    }
+                }
+                else
+                {
+                    aryText.push({Text:""});
+                    height+=lineHeight;
+                }
+            }
+        }
+        else
+        {
+            height=lineHeight;
+        }
+
+        var rtBG={ Width:width+this.NoteMargin.Left+this.NoteMargin.Right, Height:height+this.NoteMargin.Top+this.NoteMargin.Bottom, ArrowType:0 };
+
+        if (isHScreen)
+        {
+            rtBG.Left=this.PtTop.X-rtBG.Width/2-this.PtCenter.X;
+            rtBG.Top=this.PtTop.Y-rtBG.Height-this.ArrowSize-this.PtCenter.Y;
+            rtBG.Right=rtBG.Left+rtBG.Width;
+            rtBG.Bottom=rtBG.Top+rtBG.Height;
+            rtBG.Arrow={ X:this.PtTop.X-this.PtCenter.X, Y:this.PtTop.Y-this.PtCenter.Y};  //Type 0=向下箭头 1=向上箭头
+
+            if (this.PtCenter.X+height+this.FontOption.Size*pixel/2+2+this.ArrowSize>border.RightEx)
+            {
+                rtBG.Top=this.PtButtom.Y+this.ArrowSize+this.PointRadius*pixel-this.PtCenter.Y;
+                rtBG.Bottom=rtBG.Top+rtBG.Height;
+                rtBG.Arrow.X=this.PtButtom.X-this.PtCenter.X;
+                rtBG.Arrow.Y=this.PtButtom.Y-this.PtCenter.Y;
+                rtBG.ArrowType=1;
+            }
+        }
+        else
+        {
+            rtBG.Left=this.PtTop.X-rtBG.Width/2;
+            rtBG.Top=this.PtTop.Y-rtBG.Height-this.ArrowSize;
+            rtBG.Right=rtBG.Left+rtBG.Width;
+            rtBG.Bottom=rtBG.Top+rtBG.Height;
+            rtBG.Arrow={ X:this.PtTop.X, Y:this.PtTop.Y};  //Type 0=向下箭头 1=向上箭头
+            
+            if (rtBG.Left<border.Left)
+            {
+                rtBG.Left=border.Left;
+                rtBG.Right=rtBG.Left+rtBG.Width;
+            }
+            else if (rtBG.Right>border.Right)
+            {
+                rtBG.Right=border.Right;
+                rtBG.Left=rtBG.Right-rtBG.Width;
+            }
+    
+            if (rtBG.Top<border.TopEx)
+            {
+                rtBG.Top=this.PtButtom.Y+this.ArrowSize+this.PointRadius*pixel;
+                rtBG.Bottom=rtBG.Top+rtBG.Height;
+                rtBG.Arrow.X=this.PtButtom.X;
+                rtBG.Arrow.Y=this.PtButtom.Y;
+                rtBG.ArrowType=1;
+            }
+        }
+
+        this.DrawNoteBG(rtBG);
+
+        this.Canvas.textAlign="left";
+        this.Canvas.textBaseline="top";
+        this.Canvas.fillStyle=this.NoteTextColor;
+
+        var xText=rtBG.Left+this.NoteMargin.Left;
+        var yText=rtBG.Top+this.NoteMargin.Top;
+
+        for(var i=0;i<aryText.length;++i)
+        {
+            var item=aryText[i];
+            if (!item) continue;
+
+            if (item.Text)
+            {
+                this.Canvas.fillText(item.Text,xText,yText);
+                yText+=lineHeight;
+            }
+            else
+            {
+                yText+=lineHeight;
+            }
+
+            yText+=this.LineSpace;
+        }
+    }
+
+    this.DrawNoteBG=function(rtBG)
+    {
+        this.Canvas.fillStyle=this.NoteBGColor;
+       
+        if (rtBG.ArrowType==0 || rtBG.ArrowType==1)
+        {
+            var path=new Path2D();
+            if (rtBG.ArrowType==0)
+            {
+                path.moveTo(rtBG.Left, rtBG.Bottom);
+                path.lineTo(rtBG.Left, rtBG.Top);
+                path.lineTo(rtBG.Right, rtBG.Top);
+                path.lineTo(rtBG.Right,rtBG.Bottom);
+
+                var x=rtBG.Arrow.X+this.ArrowSize*0.6;
+                path.lineTo(x,rtBG.Bottom);
+
+                path.lineTo(rtBG.Arrow.X, rtBG.Arrow.Y);
+
+                var x=rtBG.Arrow.X-this.ArrowSize*0.6;
+                path.lineTo(x,rtBG.Bottom);
+            }
+            else
+            {
+                path.moveTo(rtBG.Left, rtBG.Top);
+                path.lineTo(rtBG.Left, rtBG.Bottom);
+                path.lineTo(rtBG.Right, rtBG.Bottom);
+                path.lineTo(rtBG.Right, rtBG.Top);
+
+                var x=rtBG.Arrow.X+this.ArrowSize*0.6;
+                path.lineTo(x,rtBG.Top);
+
+                path.lineTo(rtBG.Arrow.X, rtBG.Arrow.Y);
+
+                var x=rtBG.Arrow.X-this.ArrowSize*0.6;
+                path.lineTo(x,rtBG.Top);
+            }
+
+            path.closePath();
+            this.Canvas.fill(path);
+
+            if (this.NoteBorderColor) 
+            {
+                this.Canvas.strokeStyle=this.NoteBorderColor;
+                this.Canvas.stroke(path);
+            }
+        }
+        else
+        {
+            this.Canvas.fillRect(rtBG.Left, rtBG.Top, rtBG.Width, rtBG.Height);
+        }
+    }
+
+    this.IsShowNoteText=function()
+    {
+        if (this.GetActiveDrawPicture)
+        {
+            var active=this.GetActiveDrawPicture();
+            if (active.Move.Guid!=this.Guid && active.Select.Guid!=this.Guid && active.MoveOn.Guid!=this.Guid) 
+                return false;
+            
+            //if (active.Select.Guid!=this.Guid && active.MoveOn.Guid==this.Guid)
+            //    return true;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    //根据设置动态生成字体
+    this.GetTextFont=function()
+    {
+        if (!this.FontOption || !this.FontOption.Family || this.FontOption.Size<=0) return null;
+
+        var font='';
+        if (this.FontOption.Size>=0) font+=this.FontOption.Size*GetDevicePixelRatio()+'px ';
+        font+=this.FontOption.Family;
+
+        return font;
+    }
+
+    this.IsPointIn=function(x,y)
+    {
+        if (!this.Frame || this.Status!=10) return -1;
+
+        var data=this.Frame.Data;
+        if (!data) return -1;
+        if (!this.TextRect) return -1;
+
+        var offset=0;
+        if (this.Option && this.Option.Zoom>=1)
+        {
+            offset=this.Option.Zoom*GetDevicePixelRatio();
+        }
+
+        var rect={ Left:this.TextRect.Left-offset, Top:this.TextRect.Top-offset, Width:this.TextRect.Width+offset*2, Height:this.TextRect.Height+offset*2 };
+        rect.Right=rect.Left+rect.Width;
+        rect.Bottom=rect.Top+rect.Height;
+
+        if (x>rect.Left && x<rect.Right && y>rect.Top && y<rect.Bottom) 
+            return 100;
+
+        return -1;
+    }
+
+    this.GetCursorType=function(ptIndex)
+    {
+        if (ptIndex==100) return "pointer";
+        return null;
+    }
+
+}
+
+
+function ChartDrawAnchoredText()
+{
+    this.newMethod=IChartDrawPicture;   //派生
+    this.newMethod();
+    delete this.newMethod;
+
+    this.ClassName='ChartDrawAnchoredText';
+    this.PointCount=1;
+
+    this.AryText=[ {Text:"输入内容"} ];
+    this.TextColor=g_JSChartResource.ChartDrawAnchoredText.TextColor;
+    this.FontOption=
+    { 
+        Family:g_JSChartResource.ChartDrawAnchoredText.FontOption.Family,
+        Size:g_JSChartResource.ChartDrawAnchoredText.FontOption.Size,
+        Weight:g_JSChartResource.ChartDrawAnchoredText.FontOption.Weight,
+        Style:g_JSChartResource.ChartDrawAnchoredText.FontOption.Style
+    };    
+    this.TextMaxWidth=g_JSChartResource.ChartDrawAnchoredText.TextMaxWidth;   //文本最大宽度
+    this.LineSpace=g_JSChartResource.ChartDrawAnchoredText.LineSpace;
+    this.BGColor=g_JSChartResource.ChartDrawAnchoredText.BGColor;
+    this.BorderColor=g_JSChartResource.ChartDrawAnchoredText.BorderColor;
+
+    this.TextMargin=
+    { 
+        Left:g_JSChartResource.ChartDrawAnchoredText.TextMargin.Left, 
+        Top:g_JSChartResource.ChartDrawAnchoredText.TextMargin.Top, 
+        Bottom:g_JSChartResource.ChartDrawAnchoredText.TextMargin.Bottom, 
+        Right:g_JSChartResource.ChartDrawAnchoredText.TextMargin.Right
+    };
+
+    //内部变量
+    this.TextRect;
+
+    this.SetOption=function(option)
+    {
+        if (!option) return;
+
+        if (option.TextColor) this.TextColor=option.TextColor;
+        if (option.Text) this.Text=option.Text;
+        if (option.FontOption) this.SetFont(this.FontOption, option.FontOption);
+        if (IFrameSplitOperator.IsNumber(option.TextMaxWidth)) this.TextMaxWidth=option.TextMaxWidth;
+        if (IFrameSplitOperator.IsNonEmptyArray(option.AryText)) this.AryText=this.CloneArrayText(option.AryText);
+    }
+
+    //导出成存储格式
+    this.ExportStorageData=function()
+    {
+        var storageData=this.ExportBaseData();
+
+        var item=this.Value[0];
+        storageData.Value=[ { XValue:item.XValue, YValue:item.YValue } ];
+
+        storageData.FontOption={};
+        this.SetFont(storageData.FontOption, this.FontOption);
+        storageData.BGColor=this.BGColor;
+        storageData.TextColor=this.TextColor;
+        storageData.BorderColor=this.BorderColor;
+        storageData.LineSpace=this.LineSpace;
+        storageData.TextMaxWidth=this.TextMaxWidth;
+        storageData.TextMargin={ Left:this.TextMargin.Left, Top:this.TextMargin.Right, Bottom:this.TextMargin.Bottom, Right:this.TextMargin.Right };
+        storageData.AryText= this.CloneArrayText(this.AryText);
+
+        return storageData;
+    }
+
+    this.ImportStorageData=function(storageData)
+    {
+        if (storageData.TextMargin)
+        {
+            var item=storageData.TextMargin;
+            if (IFrameSplitOperator.IsNumber(item.Left)) this.TextMargin.Left=item.Left;
+            if (IFrameSplitOperator.IsNumber(item.Top)) this.TextMargin.Top=item.Top;
+            if (IFrameSplitOperator.IsNumber(item.Bottom)) this.TextMargin.Bottom=item.Bottom;
+            if (IFrameSplitOperator.IsNumber(item.Right)) this.TextMargin.Right=item.Right;
+        }
+
+        if (storageData.TextColor) this.TextColor=storageData.TextColor;
+        this.BGColor=storageData.BGColor;
+        this.BorderColor=storageData.BorderColor;
+        this.TextMaxWidth=storageData.TextMaxWidth;
+        if (IFrameSplitOperator.IsNumber(storageData.LineSpace)) this.LineSpace=storageData.LineSpace;
+        this.AryText = this.CloneArrayText(storageData.AryText);
+    }
+
+    this.Draw=function()
+    {
+        this.TextRect=null;
+        if (this.Status<2) return;
+        if(this.Point.length!=1 || !this.Frame) return;
+        if (this.IsFrameMinSize()) return;
+
+        var drawPoint=this.CalculateDrawPoint();
+        if (!drawPoint || drawPoint.length!=1) return;
+
+        this.ClipFrame();
+
+        this.DrawMultiLineText(drawPoint[0]);
+
+        this.Canvas.restore();
+    }
+
+    this.ValueToPoint=function()
+    {
+        if (!this.Frame) return false;
+
+        var item=this.Value[0];
+        var pt=this.XYValueToPoint(item.XValue, item.YValue);
+        this.Point=[pt];
+    }
+
+    this.PointToValue=function()
+    {
+        if (!this.Frame) return false;
+
+        var border=this.Frame.GetBorder();
+
+        var isHScreen=this.Frame.IsHScreen;
+        if (isHScreen)
+        {
+            var left=border.LeftEx;
+            var top=border.Top;
+            var width=border.RightEx-left;
+            var height=border.Bottom-top;
+
+            var pt=this.Point[0];
+            var yValue=(pt.X-left)/width;
+            var xValue=(pt.Y-top)/height;
+
+            this.Value[0]={ XValue:xValue, YValue:yValue };
+        }
+        else
+        {
+            var left=border.Left;
+            var top=border.TopEx;
+            var width=border.Right-left;
+            var height=border.BottomEx-top;
+
+            var pt=this.Point[0];
+            var xValue=(pt.X-left)/width;
+            var yValue=(pt.Y-top)/height;
+
+            this.Value[0]={ XValue:xValue, YValue:yValue };
+        }
+    }
+
+
+    this.XYValueToPoint=function(xValue, yValue)
+    {
+        if (!this.Frame) return null;
+
+        var isHScreen=this.Frame.IsHScreen;
+        var border=this.Frame.GetBorder();
+
+        if (isHScreen)
+        {
+            var left=border.LeftEx;
+            var top=border.Top;
+            var width=border.RightEx-left;
+            var height=border.Bottom-top;
+
+            var x=(yValue*width)+left;
+            var y=(xValue*height)+top;
+
+            return {X:x, Y:y};
+        }
+        else
+        {
+            var left=border.Left;
+            var top=border.TopEx;
+            var width=border.Right-left;
+            var height=border.BottomEx-top;
+
+            var x=(xValue*width)+left;
+            var y=(yValue*height)+top;
+
+            return {X:x, Y:y};
+        }
+    }
+
+    this.CalculateDrawPoint=function(option)
+    {
+        if (this.Status<2) return null;
+        if(this.Point.length!=1 || !this.Frame) return null;
+
+        var drawPoint=[];
+        if (this.Status==10)
+        {
+            var item=this.Value[0];
+            var pt=this.XYValueToPoint(item.XValue, item.YValue);
+            drawPoint.push(pt);
+        }
+        else
+        {
+            drawPoint=this.Point;
+        }
+
+        return drawPoint;
+    }
+
+
+    this.DrawMultiLineText=function(pt)
+    {
+        if (!IFrameSplitOperator.IsNonEmptyArray(this.AryText)) return;
+        
+        var height=0;
+        this.Canvas.font=this.GetFontString(this.FontOption);
+        
+        var lineHeight=this.Canvas.measureText("擎").width;
+        var border=this.Frame.GetBorder();
+        var pixel=GetDevicePixelRatio();
+        var isHScreen=this.Frame.IsHScreen;
+        var ptBottom={X:pt.X, Y:pt.Y};
+
+        if (isHScreen)
+        {
+            this.Canvas.translate(ptBottom.X, ptBottom.Y);
+            this.Canvas.rotate(90 * Math.PI / 180);
+
+            ptBottom.X=0;
+            ptBottom.Y=0;
+        }
+
+        var aryText=[];
+        var maxTextWidth=0;
+        for(var i=0; i<this.AryText.length; ++i)    //计算输出高度和宽度
+        {
+            var item=this.AryText[i];
+            if (!item) continue;
+
+            if (height>0) height+=this.LineSpace;
+
+            if (this.TextMaxWidth>50 && item.Text)  //限制宽度
+            {
+                var value=this.GetMultiLineText(item.Text, this.TextMaxWidth);
+                if (value && IFrameSplitOperator.IsNonEmptyArray(value.AryText))
+                {
+                    for(var j=0; j<value.AryText.length; ++j)
+                    {
+                        if (j>0) height+=this.LineSpace;
+                        var textItem=value.AryText[j];
+                        aryText.push(textItem);
+                        height+=lineHeight;
+                    }
+                }
+            }
+            else
+            {
+                if (item.Text)
+                {
+                    var textWidth=this.Canvas.measureText(item.Text).width+2;
+                    if (maxTextWidth<textWidth) maxTextWidth=textWidth;
+                }
+                aryText.push({ Text:item.Text });
+                height+=lineHeight;
+            }
+        }
+
+        if (this.TextMaxWidth>50) maxTextWidth=this.TextMaxWidth;
+
+        var rtBG=
+        { 
+            Left:ptBottom.X, Bottom:ptBottom.Y, 
+            Height:height+this.TextMargin.Top+this.TextMargin.Bottom, 
+            Width:maxTextWidth+this.TextMargin.Left+this.TextMargin.Right 
+        };
+        rtBG.Top=rtBG.Bottom-rtBG.Height;
+        rtBG.Right=rtBG.Left+rtBG.Width;
+
+        this.DrawBG(rtBG);
+
+        this.Canvas.fillStyle=this.TextColor;
+        this.Canvas.textAlign="left";
+        this.Canvas.textBaseline="top";
+
+        var xText=rtBG.Left+this.TextMargin.Left;
+        var yText=rtBG.Top+this.TextMargin.Top;
+        for(var i=0;i<aryText.length;++i)
+        {
+            var item=aryText[i];
+            if (!item) continue;
+
+            if (item.Text)
+            {
+                this.Canvas.fillText(item.Text,xText,yText);
+                yText+=lineHeight;
+            }
+            else
+            {
+                yText+=lineHeight;
+            }
+
+            yText+=this.LineSpace;
+        }
+
+
+        if (isHScreen)
+        {
+            rtBG.Left=pt.X;
+            rtBG.Top=pt.Y;
+            rtBG.Width=height+this.TextMargin.Top+this.TextMargin.Bottom;
+            rtBG.Height=maxTextWidth+this.TextMargin.Left+this.TextMargin.Right;
+            rtBG.Right=rtBG.Left+rtBG.Width;
+            rtBG.Bottom=rtBG.Top+rtBG.Height;
+        }
+
+        this.TextRect=rtBG;
+        var ptSelected={ X:rtBG.Left+rtBG.Width/2, Y:rtBG.Bottom };
+
+        this.DrawPoint([ptSelected]);  //画点
+    }
+
+    this.DrawBG=function(rtBG)
+    {
+        if (!this.BGColor && !this.BorderColor) return;
+
+        var path=new Path2D();
+        path.rect(rtBG.Left, rtBG.Top, rtBG.Width, rtBG.Height);
+
+        if (this.BGColor)
+        {
+            this.Canvas.fillStyle=this.BGColor;
+            this.Canvas.fill(path);
+        }
+
+        if (this.BorderColor)
+        {
+            this.Canvas.strokeStyle=this.BorderColor;
+            this.Canvas.stroke(path);
+        }
+        
+    }
+
+    this.IsPointIn=function(x,y)
+    {
+        if (!this.Frame || this.Status!=10) return -1;
+        if (!this.TextRect) return -1;
+
+        var rect=this.TextRect;
+
+        if (x>rect.Left && x<rect.Right && y>rect.Top && y<rect.Bottom) 
+            return 100;
+
+        return -1;
+    }
+
+    this.GetCursorType=function(ptIndex)
+    {
+        if (ptIndex==100) return "pointer";
+        return null;
+    }
+}
+
+function ChartDrawPriceLabel()
+{
+    this.newMethod=IChartDrawPicture;   //派生
+    this.newMethod();
+    delete this.newMethod;
+
+    this.ClassName='ChartDrawPriceLabel';
+    this.PointCount=1;
+
+    this.OnlyMoveXIndex=true;
+
+    this.TextColor=g_JSChartResource.ChartDrawPriceLabel.TextColor;
+    this.FontOption=
+    { 
+        Family:g_JSChartResource.ChartDrawPriceLabel.FontOption.Family,
+        Size:g_JSChartResource.ChartDrawPriceLabel.FontOption.Size,
+        Weight:g_JSChartResource.ChartDrawPriceLabel.FontOption.Weight,
+        Style:g_JSChartResource.ChartDrawPriceLabel.FontOption.Style
+    };    
+   
+    this.BGColor=g_JSChartResource.ChartDrawPriceLabel.BGColor;
+    this.BorderColor=g_JSChartResource.ChartDrawPriceLabel.BorderColor;
+    this.LabelOffset={ X:10, Y:20 };
+
+    this.TextMargin=
+    { 
+        Left:g_JSChartResource.ChartDrawPriceLabel.TextMargin.Left, 
+        Top:g_JSChartResource.ChartDrawPriceLabel.TextMargin.Top, 
+        Bottom:g_JSChartResource.ChartDrawPriceLabel.TextMargin.Bottom, 
+        Right:g_JSChartResource.ChartDrawPriceLabel.TextMargin.Right
+    };
+
+    //内部变量
+    this.TextRect;
+
+    this.SetOption=function(option)
+    {
+        if (!option) return;
+
+        if (option.TextColor) this.TextColor=option.TextColor;
+        if (option.BGColor) this.BGColor=option.BGColor;
+        if (option.BorderColor) this.BorderColor=option.BorderColor;
+        if (option.FontOption) this.SetFont(this.FontOption, option.FontOption);
+        if (option.LabelOffset)
+        {
+            var item=option.LabelOffset;
+            if (IFrameSplitOperator.IsNumber(item.X)) this.LabelOffset.X=item.X;
+            if (IFrameSplitOperator.IsNumber(item.Y)) this.LabelOffset.Y=item.Y;
+        }
+    }
+
+    //导出成存储格式
+    this.ExportStorageData=function()
+    {
+        var storageData=this.ExportBaseData();
+
+        var item=this.Value[0];
+        storageData.Value=[ { XValue:item.XValue, YValue:item.YValue } ];
+
+        storageData.BGColor=this.BGColor;
+        storageData.TextColor=this.TextColor;
+        storageData.BorderColor=this.BorderColor;
+        storageData.TextMargin={ Left:this.TextMargin.Left, Top:this.TextMargin.Right, Bottom:this.TextMargin.Bottom, Right:this.TextMargin.Right };
+
+        return storageData;
+    }
+
+    this.ImportStorageData=function(storageData)
+    {
+        if (storageData.TextMargin)
+        {
+            var item=storageData.TextMargin;
+            if (IFrameSplitOperator.IsNumber(item.Left)) this.TextMargin.Left=item.Left;
+            if (IFrameSplitOperator.IsNumber(item.Top)) this.TextMargin.Top=item.Top;
+            if (IFrameSplitOperator.IsNumber(item.Bottom)) this.TextMargin.Bottom=item.Bottom;
+            if (IFrameSplitOperator.IsNumber(item.Right)) this.TextMargin.Right=item.Right;
+        }
+
+        if (storageData.TextColor) this.TextColor=storageData.TextColor;
+        this.BGColor=storageData.BGColor;
+        this.BorderColor=storageData.BorderColor;
+    }
+
+    this.Draw=function()
+    {
+        this.TextRect=null;
+        if (this.IsFrameMinSize()) return;
+
+        var drawPoint=this.CalculateDrawPoint({IsCheckX:true, IsCheckY:true});
+        if (!drawPoint || drawPoint.length!=1) return;
+        
+       
+
+        var pt=drawPoint[0];
+        this.ClipFrame();
+
+        this.DrawPriceLabel(pt);
+
+        this.Canvas.restore(); 
+
+        this.DrawPoint([pt]);  //画点
+    }
+
+    this.DrawPriceLabel=function(pt)
+    {
+        var font=this.GetFontString(this.FontOption);
+        if (!font) return;
+
+        var isHScreen=this.Frame.IsHScreen;
+        var pixelRatio=GetDevicePixelRatio();
+
+        var ptBottom, price;
+        var yOffset=0;
+        if (isHScreen)
+        {
+            this.Canvas.translate(pt.X, pt.Y);
+            this.Canvas.rotate(90 * Math.PI / 180);
+
+            ptBottom={ X:0, Y:0 };
+            price=this.Frame.GetYData(pt.X, false);
+            yOffset=1;
+        }
+        else
+        {
+            ptBottom={ X:pt.X, Y:pt.Y };
+            price=this.Frame.GetYData(pt.Y, false);
+        }
+
+        var floatPrecision=2;  
+        if (this.Symbol && this.Frame.Identify==0) 
+            floatPrecision=GetfloatPrecision(this.Symbol);
+
+        var text=price.toFixed(floatPrecision);
+
+        this.Canvas.font=font;
+        var left=ptBottom.X+this.LabelOffset.X;
+        var bottom=ptBottom.Y-this.LabelOffset.Y;
+        var textHeight=this.Canvas.measureText("擎").width;
+        var textWidth=this.Canvas.measureText(text).width;
+
+        var rtBG={ Left:left, Bottom:bottom, Width:textWidth+this.TextMargin.Left+this.TextMargin.Right, Height:textHeight+this.TextMargin.Top+this.TextMargin.Bottom };
+        rtBG.Top=rtBG.Bottom-rtBG.Height;
+        rtBG.Right=rtBG.Left+rtBG.Width;
+
+        this.DrawBG(rtBG, ptBottom);
+
+        var xText=rtBG.Left+rtBG.Width/2;
+        var yText=rtBG.Top+rtBG.Height/2;
+
+        this.Canvas.textAlign="center";
+        this.Canvas.textBaseline="middle";
+        this.Canvas.fillStyle=this.TextColor;
+        this.Canvas.fillText(text,xText,yText+yOffset);
+
+        if (isHScreen)
+        {
+            this.TextRect=
+            { 
+                Left:pt.X+this.LabelOffset.Y, Top:pt.Y+this.LabelOffset.X, 
+                Width:textHeight+this.TextMargin.Top+this.TextMargin.Bottom, 
+                Height:textWidth+this.TextMargin.Left+this.TextMargin.Right 
+            }
+
+            this.TextRect.Right=this.TextRect.Left+this.TextRect.Width;
+            this.TextRect.Bottom=this.TextRect.Top+this.TextRect.Height;
+        }
+        else
+        {
+            this.TextRect=rtBG;
+        }
+    }
+
+    this.DrawBG=function(rtBG, pt)
+    {
+        var pixelRatio=GetDevicePixelRatio();
+
+        var path=new Path2D();
+        
+        path.moveTo(rtBG.Left, rtBG.Bottom);
+        path.lineTo(rtBG.Left, rtBG.Top);
+        path.lineTo(rtBG.Right, rtBG.Top);
+        path.lineTo(rtBG.Right,rtBG.Bottom);
+
+        var x=rtBG.Left+15*pixelRatio;
+        path.lineTo(x,rtBG.Bottom);
+
+        path.lineTo(pt.X, pt.Y);
+
+        x=rtBG.Left+5*pixelRatio;
+        path.lineTo(x,rtBG.Bottom);
+
+        path.closePath();
+
+        if (this.BGColor)
+        {
+            this.Canvas.fillStyle=this.BGColor;
+            this.Canvas.fill(path);
+        }
+
+        if (this.BorderColor)
+        {
+            this.Canvas.strokeStyle=this.BorderColor;
+            this.Canvas.stroke(path);
+        }
+
+         //绘制一个点
+         if (this.BGColor)
+         {
+            this.Canvas.beginPath();
+            this.Canvas.arc(pt.X,pt.Y,2*pixelRatio,0,360,false);
+            this.Canvas.fillStyle=this.BGColor;     
+            this.Canvas.fill();  
+         }
+             
+    }
+
+    this.IsPointIn=function(x,y)
+    {
+        if (!this.Frame || this.Status!=10) return -1;
+        if (!this.TextRect) return -1;
+
+        var rect=this.TextRect;
+
+        if (x>rect.Left && x<rect.Right && y>rect.Top && y<rect.Bottom) 
+            return 100;
+
+        return -1;
+    }
+
+    this.GetCursorType=function(ptIndex)
+    {
+        if (ptIndex==100) return "pointer";
+        return null;
+    }
+}
+
+function ChartDrawPriceNote()
+{
+    this.newMethod=IChartDrawPicture;   //派生
+    this.newMethod();
+    delete this.newMethod;
+
+    this.ClassName='ChartDrawPriceNote';
+    this.PointCount=2;
+
+    this.GetXYCoordinate=this.GetXYCoordinate_default;
+    this.IsPointIn=this.IsPointIn_XYValue_Line;
+    this.OnlyMoveXIndex=true;
+    this.IsSupportMagnet=true;
+
+    this.FontOption=
+    { 
+        Family:g_JSChartResource.ChartDrawPriceNote.FontOption.Family,
+        Size:g_JSChartResource.ChartDrawPriceNote.FontOption.Size,
+        Weight:g_JSChartResource.ChartDrawPriceNote.FontOption.Weight,
+        Style:g_JSChartResource.ChartDrawPriceNote.FontOption.Style
+    };  
+    
+    this.TextMargin=
+    { 
+        Left:g_JSChartResource.ChartDrawPriceNote.TextMargin.Left, 
+        Top:g_JSChartResource.ChartDrawPriceNote.TextMargin.Top, 
+        Bottom:g_JSChartResource.ChartDrawPriceNote.TextMargin.Bottom, 
+        Right:g_JSChartResource.ChartDrawPriceNote.TextMargin.Right
+    };
+
+    this.BGColor=g_JSChartResource.ChartDrawPriceNote.BGColor;
+    this.BorderColor=g_JSChartResource.ChartDrawPriceNote.BorderColor;
+    this.TextColor=g_JSChartResource.ChartDrawPriceNote.TextColor;
+    this.BorderRoundRadius=3;
+
+    
+    //内部变量
+    this.TextRect;
+
+    this.SetOption=function(option)
+    {
+        if (!option) return;
+
+        if (option.TextColor) this.TextColor=option.TextColor;
+        if (option.BGColor) this.BGColor=option.BGColor;
+        if (option.BorderColor) this.BorderColor=option.BorderColor;
+        if (option.FontOption) this.SetFont(this.FontOption, option.FontOption);
+    }
+
+    //导出成存储格式
+    this.ExportStorageData=function()
+    {
+        var storageData=this.ExportBaseData();
+
+        storageData.Value=[];
+        for(var i=0;i<this.Value.length;++i)
+        {
+            var item=this.Value[i];
+            storageData.Value.push( { XValue:item.XValue, YValue:item.YValue } );
+        }
+    
+        storageData.BGColor=this.BGColor;
+        storageData.TextColor=this.TextColor;
+        storageData.BorderColor=this.BorderColor;
+        storageData.TextMargin={ Left:this.TextMargin.Left, Top:this.TextMargin.Right, Bottom:this.TextMargin.Bottom, Right:this.TextMargin.Right };
+
+        return storageData;
+    }
+
+    this.ImportStorageData=function(storageData)
+    {
+        if (storageData.TextMargin)
+        {
+            var item=storageData.TextMargin;
+            if (IFrameSplitOperator.IsNumber(item.Left)) this.TextMargin.Left=item.Left;
+            if (IFrameSplitOperator.IsNumber(item.Top)) this.TextMargin.Top=item.Top;
+            if (IFrameSplitOperator.IsNumber(item.Bottom)) this.TextMargin.Bottom=item.Bottom;
+            if (IFrameSplitOperator.IsNumber(item.Right)) this.TextMargin.Right=item.Right;
+        }
+
+        if (storageData.TextColor) this.TextColor=storageData.TextColor;
+        this.BGColor=storageData.BGColor;
+        this.BorderColor=storageData.BorderColor;
+    }
+
+    this.Draw=function()
+    {
+        this.LinePoint=[];
+        this.TextRect=null;
+        if (this.IsFrameMinSize()) return;
+
+        var drawPoint=this.CalculateDrawPoint( {IsCheckX:true, IsCheckY:true} );
+        if (!drawPoint) return;
+        if (drawPoint.length!=2) return;
+
+        this.ClipFrame();
+
+        var ptStart=drawPoint[0];
+        var ptEnd=drawPoint[1];
+        this.LineWidth=1;
+
+        this.SetLineWidth();
+        this.Canvas.strokeStyle=this.LineColor;
+        this.Canvas.beginPath();
+        this.Canvas.moveTo(ptStart.X,ptStart.Y);
+        this.Canvas.lineTo(ptEnd.X,ptEnd.Y);
+        this.Canvas.stroke();
+        this.RestoreLineWidth();
+
+        this.DrawPriceLabel(ptStart, ptEnd);
+
+        var line={Start:ptStart, End:ptEnd};
+        this.LinePoint.push(line);
+        
+        this.DrawPoint(drawPoint);  //画点
+        this.Canvas.restore();
+    }
+
+    this.DrawPriceLabel=function(ptStart, ptEnd)
+    {
+        var font=this.GetFontString(this.FontOption);
+        if (!font) return;
+
+        var floatPrecision=2;  
+        if (this.Symbol && this.Frame.Identify==0) floatPrecision=GetfloatPrecision(this.Symbol);
+        var pixelRatio=GetDevicePixelRatio();
+
+        var ptPrice={ X:ptEnd.X, Y:ptEnd.Y };
+
+        var price=this.Frame.GetYData(ptStart.Y, false);
+        var text=price.toFixed(floatPrecision);
+        var textHeight=this.Canvas.measureText("擎").width;
+        var textWidth=this.Canvas.measureText(text).width;
+        var angle=this.CalculateAngle(ptStart.X, ptStart.Y, ptEnd.X, ptEnd.Y);
+        if ((angle>=0 && angle<=45) || (angle>=315 && angle<=360))
+        {
+            var left=ptPrice.X;
+            var bottom=ptPrice.Y;
+
+            var rtBG={ Left:left, Bottom:bottom, Width:textWidth+this.TextMargin.Left+this.TextMargin.Right, Height:textHeight+this.TextMargin.Top+this.TextMargin.Bottom };
+            rtBG.Bottom=bottom+(rtBG.Height/2);
+            rtBG.Top=rtBG.Bottom-rtBG.Height;
+            rtBG.Right=rtBG.Left+rtBG.Width;
+        }
+        else if (angle>45 && angle<=135)
+        {
+            var left=ptPrice.X;
+            var bottom=ptPrice.Y;
+    
+            var rtBG={ Left:left, Bottom:bottom, Width:textWidth+this.TextMargin.Left+this.TextMargin.Right, Height:textHeight+this.TextMargin.Top+this.TextMargin.Bottom };
+            rtBG.Left=left-(rtBG.Width/2);
+            rtBG.Top=rtBG.Bottom-rtBG.Height;
+            rtBG.Right=rtBG.Left+rtBG.Width;
+        }
+        else if (angle>=135 && angle<=225)
+        {
+            var left=ptPrice.X;
+            var bottom=ptPrice.Y;
+
+            var rtBG={ Width:textWidth+this.TextMargin.Left+this.TextMargin.Right, Height:textHeight+this.TextMargin.Top+this.TextMargin.Bottom };
+            rtBG.Bottom=bottom+(rtBG.Height/2);
+            rtBG.Top=rtBG.Bottom-rtBG.Height;
+            rtBG.Right=left;
+            rtBG.Left=rtBG.Right-rtBG.Width;
+        }
+        else if (angle>=225 && angle<=315)
+        {
+            var left=ptPrice.X;
+            var top=ptPrice.Y;
+
+            var rtBG={ Width:textWidth+this.TextMargin.Left+this.TextMargin.Right, Height:textHeight+this.TextMargin.Top+this.TextMargin.Bottom };
+            rtBG.Top=top;
+            rtBG.Bottom=rtBG.Top+rtBG.Height;
+            rtBG.Left=left-(rtBG.Width/2);
+            rtBG.Right=rtBG.Left-rtBG.Width;
+        }
+        else 
+            return;
+
+        this.DrawBG(rtBG);
+
+        this.Canvas.textAlign="left";
+        this.Canvas.textBaseline="middle";
+        this.Canvas.fillStyle=this.TextColor;
+        var xText=rtBG.Left+this.TextMargin.Left;
+        var yText=rtBG.Top+rtBG.Height/2;
+        var yOffset=0;
+        this.Canvas.fillText(text,xText,yText+yOffset);
+
+        //绘制一个点
+        if (this.BGColor)
+        {
+           this.Canvas.beginPath();
+           this.Canvas.arc(ptStart.X,ptStart.Y,2*pixelRatio,0,360,false);
+           this.Canvas.fillStyle=this.BGColor;     
+           this.Canvas.fill();  
+        }
+
+        this.TextRect=rtBG;
+    }
+
+    this.CalculateAngle=function(x1, y1, x2,y2)
+    {
+        var x = Math.abs(x1 - x2);
+        var y = Math.abs(y1 - y2);
+        var z = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+        var cos = x / z;
+        var radina = Math.acos(cos);   //用反三角函数求弧度
+        var angle = 180 / (Math.PI / radina);//将弧度转换成角度 
+
+        if (x2 == x1 && y2 < y1)    
+            return 90;
+
+        if (x2 == x1 && y2 > y1)    
+            return 270;
+
+        if (x2 > x1 && y2 == y1)    
+            return 0;
+
+        if (x2 < x1 && y2 == y1)
+            return 180;
+
+        if (x2 > x1 && y2 > y1)     //第四象限
+            return 360 - angle;
+
+        if (x2 < x1 && y2 > y1)     //第三象限
+            return 180 + angle;
+       
+        if (x2 < x1 && y2 < y1)     //第二象限
+            return 180 - angle;
+
+        return angle;
+    }
+
+   
+
+    this.DrawBG=function(rtBG)
+    {
+        if (!rtBG) return;
+
+        var pixelRatio=GetDevicePixelRatio();
+        var roundRadius=this.BorderRoundRadius*pixelRatio;
+
+        var path=new Path2D();
+        path.roundRect(ToFixedPoint(rtBG.Left), ToFixedPoint(rtBG.Top), ToFixedRect(rtBG.Width), ToFixedRect(rtBG.Height), [roundRadius]);
+        
+        if (this.BGColor)
+        {
+            this.Canvas.fillStyle=this.BGColor;
+            this.Canvas.fill(path);
+        }
+
+        if (this.BorderColor)
+        {
+            this.Canvas.strokeStyle=this.BorderColor;
+            this.Canvas.stroke(path);
+        }
+    }
+
+
+    this.IsPointIn=function(x,y)
+    {
+        if (!this.Frame || this.Status!=10) return -1;
+        if (!this.TextRect) return -1;
+
+        var rect=this.TextRect;
+
+        if (x>rect.Left && x<rect.Right && y>rect.Top && y<rect.Bottom) 
+            return 1;
+
+        return this.IsPointIn_XYValue_Line(x,y);
+    }
+}
+
 function ChartDrawStorage()
 {
     this.DrawData=new Map();    //画图工具数据 key=symbol-Period, value=Map() Key:Guid, Value:{Guid, Symbol, Period, ClassName, Value}
@@ -53853,6 +57384,17 @@ function JSChartResource()
     this.EmptyBarBGColor="rgb(255,255,255)";  //空心柱子背景色
     this.HighLowBarColor='rgb(41,98,255)';  //high low bar 颜色
 
+    this.HLCArea=
+    {
+        HighLineColor:'rgb(242,54,69)',
+        LowLineColor:"rgb(8,153,129)",
+        CloseLineColor:"rgb(224,227,227)",
+        LineWidth:2*GetDevicePixelRatio(),
+
+        UpAreaColor:"rgba(253,214,218, 0.5)",
+        DownAreaColor:"rgba(205,235,230, 0.5)",
+    };
+
     this.Minute={};
     this.Minute.VolBarColor=null;                       //分时图成交量柱子颜色 默认不用, 设置了柱子就不是红绿了
     this.Minute.VolTitleColor="rgb(105,105,105)";
@@ -53895,6 +57437,7 @@ function JSChartResource()
     this.TitleFont=13*GetDevicePixelRatio() +'px 微软雅黑';          //指标显示,tooltip显示字体
     this.IndexTitleBGColor='rgb(250,250,250)';                      //指标名字背景色
     this.IndexTitleBorderColor='rgb(180,180,180)';                  //指标名字边框颜色
+    this.IndexTitleBorderMoveOnColor='rgb(0,0,0)';            //指标名字边框颜色(鼠标在上面)
     this.IndexTitleColor="rgb(43,54,69)";                           //指标名字颜色
     this.IndexTitleSelectedColor="rgb(65,105,225)";
     this.OverlayIndexTitleBGColor='rgba(255,255,255,0.7)';
@@ -54429,6 +57972,50 @@ function JSChartResource()
         VAFont:14*GetDevicePixelRatio() +"px 微软雅黑",
     }
 
+    this.ChartDrawNote=
+    {
+        Text:"\ue6aa",
+        FontOption:{ Family:'iconfont', Size:32 },
+        NoteFontOption:{ Family:'微软雅黑', Size:12, Weight:null, Style:null },    //Weight(bold 粗体), Style(italic)
+
+        NoteWidth:200,
+        NoteMargin:{ Left:5, Top:5, Bottom:5, Right:5 },
+        NoteBGColor:'rgba(104,114,255,0.7)',
+        NoteTextColor:"rgb(240,240,240)",
+        NoteBorderColor:"rgb(220,220,220)",
+        LineSpace:3, //行间距
+        ArrowSize:10
+    }
+
+    this.ChartDrawAnchoredText=
+    {
+        TextMargin:{ Left:5, Top:5, Bottom:5, Right:5 },
+        BGColor:'rgba(104,114,255,0.7)',
+        BorderColor:"rgb(220,220,220)",
+        TextColor:'rgb(0,0,0)',
+        FontOption:{ Family:'微软雅黑', Size:12, Weight:null, Style:null },    //Weight(bold 粗体), Style(italic)
+        LineSpace:2,    //行间距
+        TextMaxWidth:-1
+    }
+
+    this.ChartDrawPriceLabel=
+    {
+        TextMargin:{ Left:10, Top:5, Bottom:5, Right:10 },
+        BGColor:'rgba(104,114,255,0.7)',
+        BorderColor:"rgb(220,220,220)",
+        TextColor:'rgb(0,0,0)',
+        FontOption:{ Family:'微软雅黑', Size:14, Weight:null, Style:null },    //Weight(bold 粗体), Style(italic)
+    }
+
+    this.ChartDrawPriceNote=
+    {
+        TextMargin:{ Left:10, Top:5, Bottom:5, Right:10 },
+        BGColor:'rgba(104,114,255,0.7)',
+        BorderColor:"rgb(220,220,220)",
+        TextColor:'rgb(0,0,0)',
+        FontOption:{ Family:'微软雅黑', Size:14, Weight:null, Style:null },    //Weight(bold 粗体), Style(italic)
+    }
+
     //多图标指标ChartMultiSVGIcon -> MULTI_SVGICON
     //单图标指标ChartSingleText -> DRAWICON
     this.DRAWICON=
@@ -54854,6 +58441,17 @@ function JSChartResource()
         if (style.UnchagneBarColor) this.UnchagneBarColor = style.UnchagneBarColor;
         if (style.EmptyBarBGColor) this.EmptyBarBGColor=style.EmptyBarBGColor;
         if (style.HighLowBarColor) this.HighLowBarColor=style.HighLowBarColor;
+
+        if (style.HLCArea)
+        {
+            var item=style.HLCArea;
+            if (item.HighLineColor) this.HLCArea.HighLineColor=item.HighLineColor;
+            if (item.LowLineColor) this.HLCArea.LowLineColor=item.LowLineColor;
+            if (item.CloseLineColor) this.HLCArea.CloseLineColor=item.CloseLineColor;
+            if (item.UpAreaColor) this.HLCArea.UpAreaColor=item.UpAreaColor;
+            if (item.DownAreaColor) this.HLCArea.DownAreaColor=item.DownAreaColor;
+            if (IFrameSplitOperator.IsNumber(item.LineWidth)) this.HLCArea.LineWidth=item.LineWidth;
+        }
         
         if (style.Minute) 
         {
@@ -54900,6 +58498,7 @@ function JSChartResource()
         if (style.TitleFont) this.TitleFont = style.TitleFont;
         if (style.IndexTitleBGColor) this.IndexTitleBGColor=style.IndexTitleBGColor;
         if (style.IndexTitleBorderColor) this.IndexTitleBorderColor=style.IndexTitleBorderColor;
+        if (style.IndexTitleBorderMoveOnColor) this.IndexTitleBorderMoveOnColor=style.IndexTitleBorderMoveOnColor;
         if (style.IndexTitleColor) this.IndexTitleColor=style.IndexTitleColor;
         if (style.IndexTitleSelectedColor) this.IndexTitleSelectedColor=style.IndexTitleSelectedColor;
         if (style.OverlayIndexTitleBGColor) this.OverlayIndexTitleBGColor=style.OverlayIndexTitleBGColor;
@@ -58196,6 +61795,7 @@ function KLineChartContainer(uielement,OffscreenElement)
             frame.ChartBorder=border;
             frame.Identify=i;                           //窗口序号
             frame.RightSpaceCount=this.RightSpaceCount; //右边
+            frame.GetEventCallback=(id)=> { return this.GetEventCallback(id); };
 
             if (this.ModifyIndexDialog) frame.ModifyIndexEvent=this.ModifyIndexDialog.DoModal;        //绑定菜单事件
             if (this.ChangeIndexDialog) frame.ChangeIndexEvent=this.ChangeIndexDialog.DoModal;
@@ -58268,6 +61868,7 @@ function KLineChartContainer(uielement,OffscreenElement)
         frame.Canvas=this.Canvas;
         frame.ChartBorder=border;
         frame.Identify=id;                   //窗口序号
+        frame.GetEventCallback=(id)=> { return this.GetEventCallback(id); };
 
         if (this.ModifyIndexDialog) frame.ModifyIndexEvent=this.ModifyIndexDialog.DoModal;        //绑定菜单事件
         if (this.ChangeIndexDialog) frame.ChangeIndexEvent=this.ChangeIndexDialog.DoModal;
@@ -58329,6 +61930,7 @@ function KLineChartContainer(uielement,OffscreenElement)
         this.TitlePaint[0].OverlayChartPaint=this.OverlayChartPaint;    //绑定叠加
         this.TitlePaint[0].LanguageID=this.LanguageID;
         this.TitlePaint[0].HQChart=this;
+        this.TitlePaint[0].GetEventCallback=(id)=>{ return this.GetEventCallback(id); };
     }
 
     //绑定主图K线数据
@@ -60427,12 +64029,17 @@ function KLineChartContainer(uielement,OffscreenElement)
         }
     }
 
-    this.ChangeInstructionIndex=function(indexName)
+    this.ChangeInstructionIndex=function(indexName, option)
     {
         let scriptData = new JSIndexScript();
         let indexInfo = scriptData.Get(indexName);
         if (!indexInfo) return;
         if(indexInfo.InstructionType!=1 && indexInfo.InstructionType!=2) return;
+
+        if (option)
+        {
+            if (option.Args) indexInfo.Args=option.Args;
+        }
 
         indexInfo.ID=indexName;
         this.ChangeInstructionScriptIndex(indexInfo);
@@ -60618,6 +64225,7 @@ function KLineChartContainer(uielement,OffscreenElement)
                 if (option.Args) indexData.Args=option.Args;
                 if (option.TitleFont) indexData.TitleFont=option.TitleFont;
                 if (option.IsShortTitle) indexData.IsShortTitle=option.IsShortTitle;
+                if (option.Lock) indexData.Lock=option.Lock;
             }
             
             return this.ChangeScriptIndex(windowIndex, indexData,option);
@@ -60728,11 +64336,12 @@ function KLineChartContainer(uielement,OffscreenElement)
         frame.Canvas=this.Canvas;
         frame.MainFrame=subFrame.Frame;
         frame.ChartBorder=subFrame.Frame.ChartBorder;
+        frame.GetEventCallback=(id)=> { return this.GetEventCallback(id); };
         if (obj.ShowRightText===true) frame.IsShow=true;
         else if (obj.ShowRightText===false) frame.IsShow=false;
         if (IFrameSplitOperator.IsBool(obj.ShowToolbar)) frame.IsShowToolbar=obj.ShowToolbar;   //废弃
         if (IFrameSplitOperator.IsBool(obj.IsShareY)) frame.IsShareY=obj.IsShareY;
-       
+        if (IFrameSplitOperator.IsBool(obj.IsShowIndexTitle)) frame.IsShowIndexTitle=obj.IsShowIndexTitle;
         if (IFrameSplitOperator.IsBool(obj.IsCalculateYMaxMin)) frame.IsCalculateYMaxMin=obj.IsCalculateYMaxMin;   //是否计算Y最大最小值
 
         frame.YSplitOperator=new FrameSplitY();
@@ -60775,6 +64384,8 @@ function KLineChartContainer(uielement,OffscreenElement)
                 FloatPrecision:indexInfo.FloatPrecision, Condition:indexInfo.Condition,
                 OutName:indexInfo.OutName
             };
+
+            if (IFrameSplitOperator.IsNumber(obj.FloatPrecision)) indexData.FloatPrecision=obj.FloatPrecision;
 
             var scriptIndex=new OverlayScriptIndex(indexData.Name,indexData.Script,indexData.Args,indexData);    //脚本执行
             scriptIndex.OverlayIndex={ IsOverlay:true, Identify:overlayFrame.Identify, WindowIndex:windowIndex, Frame:overlayFrame };    //叠加指标信息
@@ -62305,6 +65916,7 @@ function KLineChartContainer(uielement,OffscreenElement)
         drawPicture.Symbol=this.Symbol;
         drawPicture.Period=this.Period;
         drawPicture.Right=this.Right;
+        drawPicture.Option=this.ChartDrawOption;
         if (obj.Value) drawPicture.Value=obj.Value;
         if (obj.Guid) drawPicture.Guid=obj.Guid;
 
@@ -62342,6 +65954,7 @@ function KLineChartContainer(uielement,OffscreenElement)
         drawPicture.Symbol=this.Symbol;
         drawPicture.Period=this.Period;
         drawPicture.Right=this.Right;
+        drawPicture.Option=this.ChartDrawOption;
         drawPicture.GetActiveDrawPicture=function() { return self.GetActiveDrawPicture(); }
 
         if (drawPicture.SetOption) drawPicture.SetOption(data);
@@ -62403,7 +66016,7 @@ function KLineChartContainer(uielement,OffscreenElement)
     }
 
     //xStep,yStep 移动的偏移量
-    this.MoveChartDrawPicture=function(x,y,isPhone)
+    this.MoveChartDrawPicture=function(x,y,isPhone,drag)
     {
         var drawPicture=this.CurrentChartDrawPicture;
         if (!drawPicture) return false;
@@ -62413,7 +66026,7 @@ function KLineChartContainer(uielement,OffscreenElement)
         var xStep=x*pixelTatio;
         var yStep=y*pixelTatio;
         //JSConsole.Chart.Log("xStep="+xStep+" yStep="+yStep);
-        drawPicture.Move(xStep,yStep);
+        drawPicture.Move(xStep,yStep,drag);
 
         return true;
     }
@@ -62469,9 +66082,9 @@ function KLineChartContainer(uielement,OffscreenElement)
 
     this.CreateChartDrawPictureByStorage=function() //把缓存(this.ChartDrawStorageCache) 画图工具创建出来
     {
-        if (!this.ChartDrawStorageCache || this.ChartDrawStorageCache.length<=0) return;
+        if (!IFrameSplitOperator.IsNonEmptyArray(this.ChartDrawStorageCache)) return;
 
-        for(var i in this.ChartDrawStorageCache)
+        for(var i=0; i<this.ChartDrawStorageCache.length; ++i)
         {
             var item=this.ChartDrawStorageCache[i];
             if (item.FrameID<0 || !this.Frame.SubFrame || this.Frame.SubFrame.length<item.FrameID) continue;
@@ -62482,6 +66095,7 @@ function KLineChartContainer(uielement,OffscreenElement)
             drawPicture.Canvas=this.Canvas;
             drawPicture.Status=10;
             drawPicture.Frame=this.Frame.SubFrame[item.FrameID].Frame;  //绑定框架坐标
+            drawPicture.Option=this.ChartDrawOption;
             
             if (drawPicture.ImportStorageData) drawPicture.ImportStorageData(item);
             drawPicture.UpdateXValue();
@@ -63592,6 +67206,17 @@ function KLineChartContainer(uielement,OffscreenElement)
         }
     }
 
+    this.ClickTitleButton=function(button, e)
+    {
+        var event=this.GetEventCallback(JSCHART_EVENT_ID.ON_CLICK_TITLE_BUTTON);
+        if (event && event.Callback)
+        {
+            var data={ Info:button, PreventDefault:false  };    //PreventDefault 是否阻止内置的点击处理
+            event.Callback(event,data,this);
+            if (data.PreventDefault) return;
+        }
+    }
+
 
     this.ClickExtendChartButton=function(button, e)
     {
@@ -64412,6 +68037,16 @@ function MinuteChartContainer(uielement)
         event.Callback(event,sendData,this);
     }
 
+    this.IsMouseOnClient=function(x,y)
+    {
+        var border=this.Frame.IsHScreen?this.Frame.ChartBorder.GetHScreenBorder():this.Frame.ChartBorder.GetBorder();
+        var rect={ Left:border.Left, Top:border.Top, Right:border.Right, Bottom:border.Bottom };
+
+        if (x>=rect.Left && x<=rect.Right && y>=rect.Top && y<=rect.Bottom) return true;
+
+        return false;
+    }
+
     //左右拖拽
     this.OnDragMode_One=function(moveData, e)
     {
@@ -64674,6 +68309,22 @@ function MinuteChartContainer(uielement)
         }
     }
 
+    //获取单日 盘后集合竞价数据
+    this.GetAfterCloseData=function()
+    {
+        var dayItem=null;
+        if (this.AfterCloseData && this.IsShowAfterData) dayItem=this.AfterCloseData;
+        return dayItem;
+    }
+
+    //获取单日 盘前集合竞价数据
+    this.GetBeforeOpenData=function()
+    {
+        var dayItem=null;
+        if (this.BeforeOpenData && this.IsShowBeforeData) dayItem=this.BeforeOpenData;
+        return dayItem;
+    }
+
     this.MoveCorssCursorIndex=function(option)
     {
         if (!this.EnableNewIndex) return false;
@@ -64683,16 +68334,14 @@ function MinuteChartContainer(uielement)
         if (this.CorssCursorIndex.Type==1 || this.CorssCursorIndex.Type==2 || this.CorssCursorIndex.Type==3 || this.CorssCursorIndex.Type==-1)
         {
             var aryData=[];
-            var dayItem=null;
-            if (this.BeforeOpenData && this.IsShowBeforeData) dayItem=this.BeforeOpenData;
+            var dayItem=this.GetBeforeOpenData();
             aryData.push({DayItem:dayItem, Type:2});
 
             var dayItem=null;
             if (this.SourceData) dayItem=this.SourceData;
             aryData.push({DayItem:dayItem, Type:1});
 
-            var dayItem=null;
-            if (this.AfterCloseData && this.IsShowAfterData) dayItem=this.AfterCloseData;
+            var dayItem=this.GetAfterCloseData();;
             aryData.push({DayItem:dayItem, Type:3});
 
             var obj={ DataType:1, Data: aryData, IndexData:this.CorssCursorIndex, Point:{ X:null, Y:null }};
@@ -64875,13 +68524,13 @@ function MinuteChartContainer(uielement)
             {
                 this.CorssCursorIndex.DayIndex=clientPos-300;
                 this.CorssCursorIndex.Type=30;
-                var aryData=this.MultiDayAfterOpenData;
-                if (this.DayOffset && this.MultiDayAfterOpenData)
+                var aryData=this.MultiDayAfterCloseData;
+                if (this.DayOffset && this.MultiDayAfterCloseData)
                 {
-                    var offset=0, showDayCount=this.MultiDayBeforeOpenData.length;
+                    var offset=0, showDayCount=this.MultiDayAfterCloseData.length;
                     if (IFrameSplitOperator.IsNumber(this.DayOffset.Offset)) offset=this.DayOffset.Offset;
                     if (IFrameSplitOperator.IsNumber(this.DayOffset.ShowDayCount)) showDayCount=this.DayOffset.ShowDayCount;
-                    aryData=this.MultiDayAfterOpenData.slice(offset,offset+showDayCount);
+                    aryData=this.MultiDayAfterCloseData.slice(offset,offset+showDayCount);
                 }
                 frame.GetRightExtendXValidData(option.Point.X,{ Data: aryData, IndexData: this.CorssCursorIndex });
             }
@@ -65896,7 +69545,7 @@ function MinuteChartContainer(uielement)
     this.CreateMainKLine=function()
     {
         //分钟线
-        var minuteLine=new ChartMinutePriceLine();
+        var minuteLine=g_ChartPaintFactory.Create("ChartMinutePriceLine");
         minuteLine.Canvas=this.Canvas;
         minuteLine.ChartBorder=this.Frame.SubFrame[0].Frame.ChartBorder;
         minuteLine.ChartFrame=this.Frame.SubFrame[0].Frame;
@@ -66005,6 +69654,7 @@ function MinuteChartContainer(uielement)
             if (option.StringFormat>0) indexData.StringFormat=option.StringFormat;
             if (option.Args) indexData.Args=option.Args;
             if (IFrameSplitOperator.IsNumber(option.YSplitType)) indexData.YSplitType=option.YSplitType;
+            if (option.Lock) indexData.Lock=option.Lock;
         }
         
         return this.ChangeScriptIndex(windowIndex, indexData,option);
@@ -66400,6 +70050,16 @@ function MinuteChartContainer(uielement)
         if (IFrameSplitOperator.IsNumber(pageInfo.ShowDayCount)) this.PageInfo.ShowDayCount=pageInfo.ShowDayCount;
     }
 
+    this.ClearMinuteData=function()
+    {
+        this.SourceData=null;
+        this.DayData=null;
+        this.BeforeOpenData=null;
+        this.AfterCloseData=null;
+        this.MultiDayBeforeOpenData=null;
+        this.MultiDayAfterCloseData=null;
+    }
+
     this.ChangeDayCount=function(count, option)
     {
         if (count<0) return;
@@ -66408,6 +70068,7 @@ function MinuteChartContainer(uielement)
         this.CancelAutoUpdate();
         this.AutoUpdateEvent(false, "MinuteChartContainer::ChangeDayCount");
         this.DayCount=count;
+        this.ClearMinuteData();
 
         if (option && option.PageInfo)
         {
@@ -68623,6 +72284,10 @@ function MinuteChartContainer(uielement)
 //盘前数据
 MinuteChartContainer.JsonDataToBeforeOpenData=function(data)
 {
+    var symbol=data.stock[0].symbol;
+    var upperSymbol=symbol.toUpperCase();
+    var isSHSZ=MARKET_SUFFIX_NAME.IsSHSZ(upperSymbol);
+
     var preClose=data.stock[0].yclose;      //前一个数据价格
     var stockData=data.stock[0];
     var date=stockData.date;                //日期
@@ -68633,22 +72298,30 @@ MinuteChartContainer.JsonDataToBeforeOpenData=function(data)
         if (IFrameSplitOperator.IsNumber(stockData.beforeinfo.totalcount)) beforeOpenData.TotalCount=stockData.beforeinfo.totalcount;
         if (IFrameSplitOperator.IsNumber(stockData.beforeinfo.ver)) beforeOpenData.Ver=stockData.beforeinfo.ver;
     }
+
     if (beforeOpenData.Ver==1.0)
     {
-        for(var i in stockData.before)
+        if (IFrameSplitOperator.IsNonEmptyArray(stockData.before))
         {
-            var item=new BeforeOpenData();
-            var jsData=stockData.before[i];
-            item.Time=jsData[0];
-            item.Date=date;
-            item.Price=jsData[1];
-            if (!item.Price) item.Price=preClose;
-            else preClose=item.Price;
-            item.Vol[0]=jsData[2]/100;  //沪深股票原始单位股
-            item.Amount=jsData[3];
-            item.DateTime=date.toString()+" "+item.Time.toString();
+            for(var i=0; i<stockData.before.length; ++i)
+            {
+                var item=new BeforeOpenData();
+                var jsData=stockData.before[i];
+                item.Time=jsData[0];
+                item.Date=date;
+                item.Price=jsData[1];
+                if (!item.Price) item.Price=preClose;
+                else preClose=item.Price;
+                if (isSHSZ) item.Vol[0]=jsData[2]/100;  //沪深股票原始单位股
+                else  item.Vol[0]=jsData[2];  
+                item.Amount=jsData[3];
     
-            beforeOpenData.Data.push(item);
+                if (IFrameSplitOperator.IsNumber(jsData[4]) && jsData[4]>19000101)    //日期
+                    item.Date=jsData[4];
+               
+                item.DateTime=`${item.Date} ${item.Time}`;
+                beforeOpenData.Data.push(item);
+            }
         }
     }
     else if (beforeOpenData.Ver==2.0)
@@ -68664,7 +72337,8 @@ MinuteChartContainer.JsonDataToBeforeOpenData=function(data)
             item.Vol[0]=jsData[2];  //匹配量
             item.Vol[1]=jsData[3];  //未匹配量
             item.ColorID=jsData[4]; //柱子颜色ID
-            item.DateTime=date.toString()+" "+item.Time.toString();
+            if (IFrameSplitOperator.IsNumber(jsData[6])) item.Date=jsData[6]    //日期
+            item.DateTime=`${item.Date} ${item.Time})`;
 
             var totalVol=item.Vol[0]+item.Vol[1];
             if (IFrameSplitOperator.IsNumber(jsData[5])) totalVol=jsData[5];
@@ -68721,7 +72395,27 @@ MinuteChartContainer.JsonDataToAfterCloseData=function(data)
     if (IFrameSplitOperator.IsNumber(item.totalcount)) afterCloseData.TotalCount=item.totalcount;
     if (IFrameSplitOperator.IsNumber(item.ver)) afterCloseData.Ver=item.ver;
     var extendDataIndex=JSCHART_DATA_FIELD_ID.MINUTE_AFTERCLOSE_EXTENDDATA;  //扩展数据序号
-    if (afterCloseData.Ver==2.0)
+    
+    if (afterCloseData.Ver==1.0)
+    {
+        for(var i=0; i<stockData.after.length; ++i)
+        {
+            var item=new AfterCloseData();
+            var jsData=stockData.after[i];
+            item.Time=jsData[0];
+            item.Date=date;
+            item.Price=jsData[1];
+            item.Vol[0]=jsData[2];  
+            item.Amount=jsData[3];
+
+            if (IFrameSplitOperator.IsNumber(jsData[4]))    //日期
+                item.Date=jsData[4];
+           
+            item.DateTime=`${item.Date} ${item.Time}`;
+            afterCloseData.Data.push(item);
+        }
+    }
+    else if (afterCloseData.Ver==2.0)
     {
         var max=0;
         for(var i in stockData.after)
@@ -68821,7 +72515,7 @@ MinuteChartContainer.JsonDataToMinuteData=function(data,isBeforeData)
         if (IFrameSplitOperator.IsNumber(jsData.lead)) 
             item.Lead=jsData.lead;  //领先指标 指数才有
 
-        if (!item.Close) //当前没有价格 使用上一个价格填充
+        if (!IFrameSplitOperator.IsNumber(item.Close)) //当前没有价格 使用上一个价格填充
         {
             item.Close=preClose;
             item.Open=item.High=item.Low=item.Close;
@@ -68830,11 +72524,11 @@ MinuteChartContainer.JsonDataToMinuteData=function(data,isBeforeData)
         if (!item.AvPrice) item.AvPrice=preAvPrice;
 
         //价格是0的 都用空
-        if (item.Open<=0) item.Open=null;
-        if (item.Close<=0) item.Close=null;
-        if (item.AvPrice<=0) item.AvPrice=null;
-        if (item.High<=0) item.High=null;
-        if (item.Low<=0) item.Low=null;
+        //if (item.Open<=0) item.Open=null;
+        //if (item.Close<=0) item.Close=null;
+        //if (item.AvPrice<=0) item.AvPrice=null;
+        //if (item.High<=0) item.High=null;
+        //if (item.Low<=0) item.Low=null;
 
         //if (isFutures) item.AvPrice=null;    //期货均价暂时没有
             
@@ -68849,8 +72543,8 @@ MinuteChartContainer.JsonDataToMinuteData=function(data,isBeforeData)
             item.AvPrice=preAvPrice;
 
         //上次价格
-        if (jsData.price>0) preClose=jsData.price;
-        if (jsData.avprice>0 && item.AvPrice===jsData.avprice) preAvPrice=jsData.avprice;
+        if (IFrameSplitOperator.IsNumber(jsData.price)) preClose=jsData.price;
+        if (IFrameSplitOperator.IsNumber(jsData.avprice) && item.AvPrice===jsData.avprice) preAvPrice=jsData.avprice;
 
         if (jsData.ExtendData) item.ExtendData=jsData.ExtendData;   //扩展数据
 
@@ -68999,7 +72693,7 @@ MinuteChartContainer.JsonDataToMinuteDataArray=function(data)
             }
             if ((isFutures || isSHO || isSZO) && 9<jsData.length) item.Position=jsData[9];  //持仓
             
-            if (!item.Close)    //当前没有价格 使用上一个价格填充
+            if (!IFrameSplitOperator.IsNumber(item.Close))    //当前没有价格 使用上一个价格填充
             {
                 item.Close=preClose;   
                 item.Open=item.High=item.Low=item.Close;
@@ -69011,12 +72705,12 @@ MinuteChartContainer.JsonDataToMinuteDataArray=function(data)
             else item.Increase=null;
 
             //价格是0的 都用空
-            if (item.Open<=0) item.Open=null;
-            if (item.Close<=0) item.Close=null;
-            if (item.AvPrice<=0) item.AvPrice=null;
-            if (item.High<=0) item.High=null;
-            if (item.Low<=0) item.Low=null;
-            if (item.AvPrice<=0) item.AvPrice=null;
+            //if (item.Open<=0) item.Open=null;
+            //if (item.Close<=0) item.Close=null;
+            //if (item.AvPrice<=0) item.AvPrice=null;
+            //if (item.High<=0) item.High=null;
+            //if (item.Low<=0) item.Low=null;
+            //if (item.AvPrice<=0) item.AvPrice=null;
 
             //均价太大 可能是后台算错了
             if (item.AvPrice && isSHSZ)
@@ -69074,12 +72768,20 @@ MinuteChartContainer.JsonDataToHistoryMinuteLineColorData=function(data)
 }
 
 
-MinuteChartContainer.JsonDataToCallAuctionItem=function(data, callAuctionData, isBeforeOpen)
+MinuteChartContainer.JsonDataToCallAuctionItem=function(data, callAuctionData, isBeforeOpen, symbol)
 {
+    var isSHSZ=false;
+    if (symbol)
+    {
+        var upperSymbol=symbol.toUpperCase();
+        isSHSZ=MARKET_SUFFIX_NAME.IsSHSZ(upperSymbol);
+    }
+    
     var date=callAuctionData.Date;
     var extendDataIndex=isBeforeOpen? JSCHART_DATA_FIELD_ID.MINUTE_BEFOREOPEN_EXTENDDATA:JSCHART_DATA_FIELD_ID.MINUTE_AFTERCLOSE_EXTENDDATA;  //扩展数据序号
     if (callAuctionData.Ver==1.0)
     {
+        var preClose=null;
         for(var i in data)
         {
             var item=isBeforeOpen? new BeforeOpenData() : new AfterCloseData();
@@ -69089,9 +72791,12 @@ MinuteChartContainer.JsonDataToCallAuctionItem=function(data, callAuctionData, i
             item.Price=jsData[1];
             if (!item.Price) item.Price=preClose;
             else preClose=item.Price;
-            item.Vol[0]=jsData[2]/100;  //沪深股票原始单位股
+            item.Vol[0]=isSHSZ ? jsData[2]/100 : jsData[2];  //沪深股票原始单位股
             item.Amount=jsData[3];
-            item.DateTime=date.toString()+" "+item.Time.toString();
+            if (IFrameSplitOperator.IsNumber(jsData[4]))    //日期
+                item.Date=jsData[4];
+                
+            item.DateTime=`${item.Date} ${item.Time}`;
     
             callAuctionData.Data.push(item);
         }
@@ -69165,7 +72870,7 @@ MinuteChartContainer.JosnDataToBeforeOpenDataArray=function(data)
             if (IFrameSplitOperator.IsNumber(dayItem.beforeinfo.ver)) beforeOpenData.Ver=dayItem.beforeinfo.ver;
         }
 
-        MinuteChartContainer.JsonDataToCallAuctionItem(dayItem.before, beforeOpenData, true);
+        MinuteChartContainer.JsonDataToCallAuctionItem(dayItem.before, beforeOpenData, true, data.symbol);
 
         aryDay.push(beforeOpenData);
     }
@@ -69191,7 +72896,7 @@ MinuteChartContainer.JosnDataToAfterCloseDataArray=function(data)
             if (IFrameSplitOperator.IsNumber(dayItem.afterinfo.ver)) afterCloseData.Ver=dayItem.afterinfo.ver;
         }
 
-        MinuteChartContainer.JsonDataToCallAuctionItem(dayItem.after, afterCloseData, false);
+        MinuteChartContainer.JsonDataToCallAuctionItem(dayItem.after, afterCloseData, false, data.symbol);
 
         aryDay.push(afterCloseData);
     }
@@ -70261,6 +73966,13 @@ function KLineChartHScreenContainer(uielement)
                 }
             }
 
+            if (this.EnableVerticalDrag )
+            {
+                this.VerticalDrag={ IsDrag:false };
+                if (this.Frame.PtInFrameVertical(pt.X, pt.Y))
+                    this.VerticalDrag.IsDrag=true;
+            }
+
             var bStartTimer=true;
             if (this.ChartDrawOption.IsLockScreen)
             {
@@ -70278,6 +73990,8 @@ function KLineChartHScreenContainer(uielement)
             {
                 if (!isSingleTouch) bStartTimer=false;
             }
+
+            if (this.VerticalDrag) bStartTimer=false;
 
             var drag= {  Click:{}, LastMove:{}  }; //LastMove=最后移动的位置
            
@@ -70363,6 +74077,10 @@ function KLineChartHScreenContainer(uielement)
                 this.MouseDrag=null;
                 this.MoveCorssCursor(drag.Click,e);
             }
+            else if (this.VerticalDrag)
+            {
+                if (!this.VerticalDrag.IsDrag) this.MoveCorssCursor(drag.Click,e);  //没有点击X轴, 就显示十字光标
+            }
             else if (this.IsClickShowCorssCursor)
             {
                 this.MoveCorssCursor(drag.Click,e);
@@ -70412,6 +74130,12 @@ function KLineChartHScreenContainer(uielement)
                 var moveUpDown=Math.abs(drag.LastMove.X-touches[0].clientX);
                 var isMoveCorssCursor=(this.DragMode==JSCHART_DRAG_ID.CLICK_TOUCH_MODE_ID && this.TouchStatus.CorssCursorShow==true); //是否移动十字光标
 
+                if (this.VerticalDrag) 
+                {
+                    if (this.VerticalDrag.IsDrag===true) isMoveCorssCursor=false;
+                    else isMoveCorssCursor=true;
+                }
+
                 if (this.CurrentChartDrawPicture)
                 {
                     var drawPicture=this.CurrentChartDrawPicture;
@@ -70455,6 +74179,12 @@ function KLineChartHScreenContainer(uielement)
 
                     var oneStepWidth=this.GetMoveOneStepWidth();
                     if (moveSetp<oneStepWidth) return;
+
+                    if (this.EnableVerticalDrag)
+                    {
+                        if (!this.VerticalDrag) return;
+                        if (!this.VerticalDrag.IsDrag) return;
+                    }
 
                     var isLeft=true;
                     if (drag.LastMove.Y<touches[0].clientY) isLeft=false;//右移数据
@@ -70552,6 +74282,7 @@ function KLineChartHScreenContainer(uielement)
         }
 
         this.IsOnTouch = false;
+        this.VerticalDrag=null;
         this.StopDragTimer();
         this.TouchEvent({ EventID:JSCHART_EVENT_ID.ON_PHONE_TOUCH, FunctionName:"OnTouchEnd"}, e);
         this.OnTouchFinished();
@@ -70615,7 +74346,7 @@ function KLineChartHScreenContainer(uielement)
             var border=new ChartBorder();
             border.UIElement=this.UIElement;
 
-            var frame=new KLineHScreenFrame();
+            var frame=g_ChartFrameFactory.Create("KLineHScreenFrame", { ID:i });
             frame.Canvas=this.Canvas;
             frame.ChartBorder=border;
             frame.Identify=i;                   //窗口序号
@@ -70708,9 +74439,12 @@ function MinuteChartHScreenContainer(uielement)
 
         //创建十字光标
         this.ChartCorssCursor=new ChartCorssCursor();
+        this.ChartCorssCursor.PtInClient=(x,y)=>{ return this.PtInClient(x,y); }
         this.ChartCorssCursor.Canvas=this.Canvas;
         this.ChartCorssCursor.StringFormatX=g_DivTooltipDataForamt.Create("CorssCursor_Minute_XStringFormat");
+        this.ChartCorssCursor.StringFormatX.GetEventCallback=(id)=> { return this.GetEventCallback(id); }
         this.ChartCorssCursor.StringFormatY=g_DivTooltipDataForamt.Create("CorssCursor_YStringFormat");
+        this.ChartCorssCursor.StringFormatY.GetEventCallback=(id)=> { return this.GetEventCallback(id); }
         this.ChartCorssCursor.CallAcutionXOperator=new CallAcutionXOperator();
 
          //创建等待提示
@@ -76703,6 +80437,10 @@ function KLineRightMenu(divElement)
             {
                 text: "High-low",
                 click: function () { chart.ChangeKLineDrawType(13);}
+            },
+            {
+                text: "HLC Area",
+                click: function () { chart.ChangeKLineDrawType(15);}
             }
         ];
 
@@ -76734,6 +80472,9 @@ function KLineRightMenu(divElement)
                 break;
             case 13:
                 data[8].selected=true;
+                break;
+            case 15:
+                data[9].selected=true;
                 break;
         }
         return data;

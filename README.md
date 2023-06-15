@@ -13,6 +13,9 @@ HQChart是第1个基于国内传统PC股票客户端软件(C++)移植到js/py平
 **支持品种**:支持股票，期货， 数字货币，外汇等和K线相关的品种。<br>
 **麦语法指标计算引擎**(分析家语法)指标执行器支持js, nodejs, py, c#，c++. <br>
 
+QQ交流群1：950092318(已满)    
+QQ交流群2：719525615      
+
 
 源码地址:[https://github.com/jones2000/HQChart](https://github.com/jones2000/HQChart)<br>
 镜像地址:[https://gitee.com/jones2000/HQChart](https://gitee.com/jones2000/HQChart)<br>
@@ -142,7 +145,7 @@ React 例子:[demo-react.md](/教程/demo-react.md) <br>
 ![区间选择支持拖拽移动](/小程序行情模块用例/image/kline_selectrect.gif)
 * 散点图指标
 ![散点图指标](/小程序行情模块用例/image/kline_SCATTERPLOT.gif)
-* renko（砖形图)
+* renko 砖形图 
 ![砖形图](/小程序行情模块用例/image/hqchart_renko.png)
 * line break
 ![line break](/小程序行情模块用例/image/hqchart_linebreak.png)
@@ -154,6 +157,8 @@ React 例子:[demo-react.md](/教程/demo-react.md) <br>
 ![scroll bar](/小程序行情模块用例/image/hqchart_scrollbar.gif)  
 * 美国线(自动调整柱子宽度)
 ![bar](/小程序行情模块用例/image/kline_usabar.gif)  
+* HLC Area
+![HLC Area](/小程序行情模块用例/image/kline_HLCArea.png)   
 
 
 # 2. 走势图
@@ -182,10 +187,12 @@ React 例子:[demo-react.md](/教程/demo-react.md) <br>
 4. 支持配置列本地排序或远程排序<br>
 5. 支持走势图
 6. 支持单K线柱
+7. 拖拽调整表头顺序和列宽度
 ![报价列表](/小程序行情模块用例/image/hqchart_report.gif)<br>
 ![报价列表](/小程序行情模块用例/image/hqchart_report2.gif)<br>
 ![报价列表](/小程序行情模块用例/image/hqchart_report_closeline.png)<br>
 ![报价列表](/小程序行情模块用例/image/hqchart_report_kbar.png)<br>
+![报价列表](/小程序行情模块用例/image/hqchart_report_2.gif)<br>
 * 键盘精灵<br>
 ![键盘精灵](/小程序行情模块用例/image/sendsymbol_demo.gif)<br>
 
@@ -468,6 +475,8 @@ React 例子:[demo-react.md](/教程/demo-react.md) <br>
 6. [HQChart实战教程59-深度图定制Tooltip输出内容](https://jones2000.blog.csdn.net/article/details/129951576)  
 7. [HQChart实战教程60-如何定制十字光标输出内容](https://jones2000.blog.csdn.net/article/details/130079468)  
 8. [HQChart实战教程61-自定义十字星K线颜色](https://blog.csdn.net/jones2000/article/details/130551867)    
+9. [HQChart实战教程62-自定义K线标题栏](https://jones2000.blog.csdn.net/article/details/131174277)   
+10. [HQChart实战教程63-自定义手机端K线tooltip显示数据](https://jones2000.blog.csdn.net/article/details/131206706)    
 
 ## HQChart报价列表高级应用教程(付费文章)
 1. [HQChart报价列表高级应用教程1-雪球数据对接报价列表](https://blog.csdn.net/jones2000/article/details/124759574)<br>
